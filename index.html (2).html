@@ -1,0 +1,1914 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>אוצר דברי התורה של סבא שאול</title>
+    <!-- טעינת Tailwind CSS לעיצוב מודרני ומותאם למובייל ולמחשב -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- טעינת גופנים עבריים מ-Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=David+Libre:wght@400;500;700&family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- טעינת אייקונים מ-Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Heebo', 'sans-serif'],
+                        serif: ['David Libre', 'serif'],
+                    },
+                    colors: {
+                        parchment: {
+                            50: '#fdfbf7',
+                            100: '#f8f3e8',
+                            200: '#efe4ce',
+                            300: '#e2ceaa',
+                            800: '#5c4a2e',
+                            900: '#3d301d',
+                        },
+                        royal: {
+                            800: '#1e3a5f',
+                            900: '#132640',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* עיצוב מותאם אישית לפס הגלילה ולטקסט תורני */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f8f3e8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4c19c;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b89f72;
+        }
+        .torah-content {
+            line-height: 1.85;
+            font-size: 1.125rem;
+        }
+        .torah-content p {
+            margin-bottom: 1rem;
+        }
+        /* אנימציות כניסה ועיצוב כרטיסיות ב-CSS טהור */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .lesson-card-animate {
+            animation: fadeInUp 0.25s ease-out forwards;
+        }
+        .fav-star-active {
+            color: #f59e0b;
+            fill: #f59e0b;
+        }
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-parchment-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- כותרת עליונה (Header) -->
+    <header class="bg-gradient-to-l from-royal-900 via-royal-800 to-royal-900 text-white shadow-lg sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-400/20 p-2.5 rounded-xl border border-amber-300/30">
+                        <i data-lucide="book-open-check" class="w-7 h-7 text-amber-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-amber-50">אוצר דברי התורה של סבא שאול</h1>
+                        <p class="text-xs sm:text-sm text-amber-200/80">ארכיון שיעורים ודפים לפרשת השבוע מתיבת המייל (משפחת סולברג)</p>
+                    </div>
+                </div>
+
+                <!-- סטטיסטיקה מהירה וכפתור הוספה -->
+                <div class="flex flex-wrap items-center gap-2 sm:gap-3 self-end md:self-auto">
+                    <div class="bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-lg text-xs sm:text-sm border border-white/10">
+                        <span id="total-count" class="font-bold text-amber-300">0</span> דברי תורה
+                    </div>
+                    <button id="sync-site-btn" onclick="syncFromHatulSite()" class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-royal-950 font-bold px-3.5 py-2 rounded-xl text-xs sm:text-sm transition shadow-sm cursor-pointer" title="שאיבת כל דברי התורה מתש״פ ואילך מהאתר tora.hatul.info">
+                        <i data-lucide="refresh-cw" id="sync-site-icon" class="w-4 h-4"></i>
+                        <span>סנכרן מאתר תורה</span>
+                    </button>
+                    <button onclick="exportArchiveJSON()" class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-amber-100 font-medium px-3 py-2 rounded-xl text-xs sm:text-sm transition border border-white/15 cursor-pointer" title="הורד קובץ גיבוי לשיתוף">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">ייצוא</span>
+                    </button>
+                    <label class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-amber-100 font-medium px-3 py-2 rounded-xl text-xs sm:text-sm transition border border-white/15 cursor-pointer" title="טען קובץ גיבוי JSON">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">ייבוא</span>
+                        <input type="file" accept=".json" onchange="importArchiveJSON(event)" class="hidden">
+                    </label>
+                    <button onclick="openAddModal()" class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-royal-950 font-semibold px-3.5 py-2 rounded-xl text-sm transition shadow-sm cursor-pointer">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>הוסף ידנית</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- סרגל סינון וחיפוש -->
+    <section class="bg-parchment-100 border-b border-parchment-200 py-5 px-4 sm:px-6 lg:px-8 shadow-sm no-print">
+        <div class="max-w-7xl mx-auto space-y-4">
+            <!-- שורת חיפוש מרכזית בולטת לפי פרשה, שנה או מילת מפתח -->
+            <div class="bg-white p-2 rounded-2xl border-2 border-royal-800/20 focus-within:border-royal-800 shadow-sm transition-all">
+                <div class="relative flex items-center">
+                    <i data-lucide="search" class="w-5 h-5 text-royal-800 mr-3 shrink-0"></i>
+                    <input type="text" id="search-input" 
+                           placeholder="חיפוש מהיר לפי פרשה (למשל: וישב, ראה), שנה (תשפ״ד, תשפ״ה) או מילת מפתח (רש״י, הרב זקס, שבת, ירושלים)..." 
+                           class="w-full px-3 py-2 bg-transparent text-base text-slate-800 placeholder:text-slate-400 focus:outline-none">
+                    <button id="clear-search-btn" onclick="clearSearchInput()" class="hidden p-1.5 ml-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition cursor-pointer" title="נקה חיפוש">
+                        <i data-lucide="x-circle" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                    <button type="button" onclick="quickSearch('תשפ״ה')" class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">תשפ״ה</button>
+                    <button type="button" onclick="quickSearch('תשפ״ד')" class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">תשפ״ד</button>
+                    <button type="button" onclick="quickSearch('תשפ״ג')" class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">תשפ״ג</button>
+                    <button type="button" onclick="quickSearch('תשפ״ב')" class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">תשפ״ב</button>
+                    <button type="button" onclick="quickSearch('תשפ״א')" class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">תשפ״א</button>
+                    <button type="button" onclick="quickSearch('תש״פ')" class="px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100 transition cursor-pointer">תש״פ</button>
+                    <button type="button" onclick="quickSearch('רמב״ן')" class="px-2.5 py-0.5 rounded-full bg-parchment-100 text-parchment-900 border border-parchment-300 hover:bg-parchment-200 transition cursor-pointer">רמב״ן</button>
+                    <button type="button" onclick="quickSearch('הרב זקס')" class="px-2.5 py-0.5 rounded-full bg-parchment-100 text-parchment-900 border border-parchment-300 hover:bg-parchment-200 transition cursor-pointer">הרב זקס</button>
+                    <button type="button" onclick="quickSearch('תוספת ברכה')" class="px-2.5 py-0.5 rounded-full bg-parchment-100 text-parchment-900 border border-parchment-300 hover:bg-parchment-200 transition cursor-pointer">תוספת ברכה</button>
+                    <button type="button" onclick="quickSearch('הרב זוין')" class="px-2.5 py-0.5 rounded-full bg-parchment-100 text-parchment-900 border border-parchment-300 hover:bg-parchment-200 transition cursor-pointer">הרב זוין</button>
+                    <button type="button" onclick="quickSearch('ירושלים')" class="px-2.5 py-0.5 rounded-full bg-parchment-100 text-parchment-900 border border-parchment-300 hover:bg-parchment-200 transition cursor-pointer">ירושלים</button>
+                </div>
+            </div>
+
+            <!-- שורת סינון משנית לפי שנה ופרשה -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- סינון לפי שנה עברית -->
+                <div class="relative">
+                    <select id="year-filter" class="w-full px-3.5 py-2.5 bg-white border border-parchment-300 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-royal-800/30 focus:border-royal-800 appearance-none cursor-pointer">
+                        <option value="all">כל השנים העבריות</option>
+                    </select>
+                    <i data-lucide="calendar" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+
+                <!-- סינון לפי פרשה ספציפית -->
+                <div class="relative">
+                    <select id="parasha-filter" class="w-full px-3.5 py-2.5 bg-white border border-parchment-300 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-royal-800/30 focus:border-royal-800 appearance-none cursor-pointer">
+                        <option value="all">כל הפרשות והמועדים</option>
+                    </select>
+                    <i data-lucide="scroll-text" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                </div>
+            </div>
+
+            <!-- כפתורי סינון מהיר לפי חומשים -->
+            <div class="flex flex-wrap items-center gap-2 pt-1" id="chumash-tabs">
+                <button data-chumash="all" class="chumash-btn active px-4 py-1.5 rounded-full text-sm font-semibold transition cursor-pointer bg-royal-800 text-white shadow-sm">
+                    הכל
+                </button>
+                <button data-chumash="בראשית" class="chumash-btn px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-slate-700 hover:bg-parchment-200 border border-parchment-300">
+                    חומש בראשית
+                </button>
+                <button data-chumash="שמות" class="chumash-btn px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-slate-700 hover:bg-parchment-200 border border-parchment-300">
+                    חומש שמות
+                </button>
+                <button data-chumash="ויקרא" class="chumash-btn px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-slate-700 hover:bg-parchment-200 border border-parchment-300">
+                    חומש ויקרא
+                </button>
+                <button data-chumash="במדבר" class="chumash-btn px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-slate-700 hover:bg-parchment-200 border border-parchment-300">
+                    חומש במדבר
+                </button>
+                <button data-chumash="דברים" class="chumash-btn px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-slate-700 hover:bg-parchment-200 border border-parchment-300">
+                    חומש דברים
+                </button>
+                <button data-chumash="מועדים" class="chumash-btn px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-slate-700 hover:bg-parchment-200 border border-parchment-300">
+                    חגים ומועדים
+                </button>
+                <button id="favorites-toggle-btn" onclick="toggleFavoritesFilter()" class="px-4 py-1.5 rounded-full text-sm font-medium transition cursor-pointer bg-white text-amber-800 hover:bg-amber-50 border border-amber-300 flex items-center gap-1.5 mr-auto">
+                    <i data-lucide="star" class="w-3.5 h-3.5 text-amber-500"></i>
+                    <span>מועדפים (<span id="fav-count">0</span>)</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- תוכן ראשי -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 no-print">
+        <!-- שורת מידע על התוצאות ומיון -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <p class="text-sm text-slate-600">
+                מציג <span id="filtered-count" class="font-bold text-royal-800">0</span> דברי תורה
+                <span id="active-filters-label" class="text-slate-500"></span>
+            </p>
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-slate-500">מיון לפי:</span>
+                <select id="sort-select" class="bg-white border border-parchment-300 rounded-lg px-2.5 py-1 text-xs font-medium text-slate-700 focus:outline-none">
+                    <option value="parasha-order">סדר הפרשות בתורה</option>
+                    <option value="date-desc">תאריך שליחה (מהחדש לישן)</option>
+                    <option value="date-asc">תאריך שליחה (מהישן לחדש)</option>
+                </select>
+                <button onclick="resetFilters()" id="reset-btn" class="hidden text-xs text-royal-800 hover:underline font-medium mr-2 cursor-pointer">
+                    נקה סינון
+                </button>
+            </div>
+        </div>
+
+        <!-- רשת הכרטיסיות של דברי התורה -->
+        <div id="lessons-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- הכרטיסיות יוזרקו לכאן דינמית -->
+        </div>
+
+        <!-- הודעה כשאין תוצאות -->
+        <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-parchment-200 shadow-sm">
+            <div class="bg-parchment-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="book-x" class="w-8 h-8 text-parchment-800"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-1">לא נמצאו דברי תורה תואמים</h3>
+            <p class="text-sm text-slate-500 mb-4">נסה לשנות את מילות החיפוש או לנקות את המסננים שנבחרו.</p>
+            <button onclick="resetFilters()" class="bg-royal-800 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-royal-900 transition cursor-pointer">
+                הצג את כל דברי התורה
+            </button>
+        </div>
+    </main>
+
+    <!-- מודאל קריאת דבר תורה מלא -->
+    <div id="reader-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+        <div class="bg-parchment-50 w-full max-w-3xl rounded-2xl shadow-2xl border border-parchment-300 overflow-hidden flex flex-col max-h-[92vh]">
+            <!-- כותרת המודאל -->
+            <div class="bg-royal-900 text-white px-5 py-4 flex items-start justify-between gap-4 no-print">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span id="modal-chumash" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-400 text-royal-950"></span>
+                        <span id="modal-parasha" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/15 text-amber-100"></span>
+                        <span id="modal-year" class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 text-slate-200"></span>
+                    </div>
+                    <h2 id="modal-title" class="text-xl sm:text-2xl font-bold font-serif text-amber-50"></h2>
+                </div>
+                <button onclick="closeReaderModal()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white transition cursor-pointer" title="סגור">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- סרגל כלים לקריאה -->
+            <div class="bg-parchment-100 px-5 py-2.5 border-b border-parchment-200 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 no-print">
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1"><i data-lucide="user" class="w-3.5 h-3.5 text-parchment-800"></i> <span id="modal-sender"></span></span>
+                    <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-parchment-800"></i> <span id="modal-date"></span></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="changeFontSize(-1)" class="px-2 py-1 bg-white border border-parchment-300 rounded hover:bg-parchment-200 font-bold cursor-pointer" title="הקטן גופן">א-</button>
+                    <button onclick="changeFontSize(1)" class="px-2 py-1 bg-white border border-parchment-300 rounded hover:bg-parchment-200 font-bold cursor-pointer" title="הגדל גופן">א+</button>
+                    <button onclick="copyLessonText()" class="flex items-center gap-1 px-2.5 py-1 bg-white border border-parchment-300 rounded hover:bg-parchment-200 font-medium cursor-pointer">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> העתק
+                    </button>
+                    <button onclick="window.print()" class="flex items-center gap-1 px-2.5 py-1 bg-royal-800 text-white rounded hover:bg-royal-900 font-medium cursor-pointer">
+                        <i data-lucide="printer" class="w-3.5 h-3.5"></i> הדפס לשבת
+                    </button>
+                </div>
+            </div>
+
+            <!-- גוף הטקסט של דבר התורה -->
+            <div id="modal-body-container" class="p-6 sm:p-8 overflow-y-auto flex-1 bg-white">
+                <div id="modal-verse" class="mb-5 p-4 bg-parchment-100/80 border-r-4 border-amber-500 rounded-l-xl font-serif text-lg font-bold text-royal-900"></div>
+                <div id="modal-content" class="torah-content text-slate-800 space-y-4 font-serif text-lg"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודאל להוספת דבר תורה חדש מהמייל -->
+    <div id="add-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto no-print">
+        <div class="bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-parchment-300 overflow-hidden">
+            <div class="bg-royal-900 text-white px-5 py-4 flex items-center justify-between">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i data-lucide="mail-plus" class="w-5 h-5 text-amber-300"></i>
+                    הוספת דבר תורה חדש מהמייל
+                </h3>
+                <button onclick="closeAddModal()" class="p-1 rounded-lg hover:bg-white/10 transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="add-lesson-form" onsubmit="handleAddLesson(event)" class="p-5 space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">חומש / קטגוריה *</label>
+                        <select id="new-chumash" required onchange="updateNewParashaOptions()" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+                            <option value="בראשית">בראשית</option>
+                            <option value="שמות">שמות</option>
+                            <option value="ויקרא">ויקרא</option>
+                            <option value="במדבר">במדבר</option>
+                            <option value="דברים">דברים</option>
+                            <option value="מועדים">מועדים</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">פרשה / מועד *</label>
+                        <select id="new-parasha" required class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">שנה עברית *</label>
+                        <input type="text" id="new-year" required placeholder="למשל: תשפ״ו" value="תשפ״ו" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">כותרת השיעור / נושא מרכזי *</label>
+                    <input type="text" id="new-title" required placeholder="למשל: כוח הדיבור והשמיעה בפרשת וארא" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">פסוק פותח (אופציונלי)</label>
+                    <input type="text" id="new-verse" placeholder="ציטוט הפסוק המרכזי בשיעור" class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">תוכן דבר התורה (הדבק מהמייל) *</label>
+                    <textarea id="new-content" required rows="6" placeholder="הדבק כאן את תוכן המייל או קובץ הוורד של סבא שאול..." class="w-full px-3 py-2 border border-slate-300 rounded-xl text-sm"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeAddModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 cursor-pointer">ביטול</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-royal-800 text-white hover:bg-royal-900 shadow-sm cursor-pointer">שמור בארכיון</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- הודעת טוסט (Toast) להתראות במקום alert() -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden bg-royal-900 text-white px-5 py-3 rounded-xl shadow-xl text-sm font-medium flex items-center gap-2 border border-amber-400/30">
+        <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i>
+        <span id="toast-msg"></span>
+    </div>
+
+    <!-- אזור ייעודי להדפסה נקייה של דבר תורה לשולחן שבת -->
+    <div id="print-area" class="hidden print-only p-8 max-w-3xl mx-auto">
+        <div class="border-b-2 border-slate-800 pb-4 mb-6 text-center">
+            <p class="text-sm text-slate-600 mb-1">ב״ה • מתוך אוצר דברי התורה של סבא אברהם שאול סולברג</p>
+            <h1 id="print-title" class="text-2xl font-bold font-serif"></h1>
+            <p id="print-meta" class="text-sm font-medium text-slate-700 mt-1"></p>
+        </div>
+        <div id="print-verse" class="mb-5 p-3 bg-slate-100 border-r-4 border-slate-800 font-serif text-lg font-bold"></div>
+        <div id="print-content" class="torah-content font-serif text-lg space-y-4"></div>
+    </div>
+
+    <script>
+        // מבנה הנתונים של כל פרשות השבוע לפי סדר החומשים לצורך מיון מדויק
+        const PARASHA_ORDER = [
+            // בראשית
+            { name: "בראשית", chumash: "בראשית" },
+            { name: "נח", chumash: "בראשית" },
+            { name: "לך לך", chumash: "בראשית" },
+            { name: "וירא", chumash: "בראשית" },
+            { name: "חיי שרה", chumash: "בראשית" },
+            { name: "תולדות", chumash: "בראשית" },
+            { name: "ויצא", chumash: "בראשית" },
+            { name: "וישלח", chumash: "בראשית" },
+            { name: "וישב", chumash: "בראשית" },
+            { name: "מקץ", chumash: "בראשית" },
+            { name: "ויגש", chumash: "בראשית" },
+            { name: "ויחי", chumash: "בראשית" },
+            // שמות
+            { name: "שמות", chumash: "שמות" },
+            { name: "וארא", chumash: "שמות" },
+            { name: "בא", chumash: "שמות" },
+            { name: "בשלח", chumash: "שמות" },
+            { name: "יתרו", chumash: "שמות" },
+            { name: "משפטים", chumash: "שמות" },
+            { name: "תרומה", chumash: "שמות" },
+            { name: "תצווה", chumash: "שמות" },
+            { name: "כי תשא", chumash: "שמות" },
+            { name: "ויקהל", chumash: "שמות" },
+            { name: "פקודי", chumash: "שמות" },
+            // ויקרא
+            { name: "ויקרא", chumash: "ויקרא" },
+            { name: "צו", chumash: "ויקרא" },
+            { name: "שמיני", chumash: "ויקרא" },
+            { name: "תזריע", chumash: "ויקרא" },
+            { name: "מצורע", chumash: "ויקרא" },
+            { name: "אחרי מות", chumash: "ויקרא" },
+            { name: "קדושים", chumash: "ויקרא" },
+            { name: "אמור", chumash: "ויקרא" },
+            { name: "בהר", chumash: "ויקרא" },
+            { name: "בחוקותי", chumash: "ויקרא" },
+            // במדבר
+            { name: "במדבר", chumash: "במדבר" },
+            { name: "נשא", chumash: "במדבר" },
+            { name: "בהעלותך", chumash: "במדבר" },
+            { name: "שלח", chumash: "במדבר" },
+            { name: "קרח", chumash: "במדבר" },
+            { name: "חוקת", chumash: "במדבר" },
+            { name: "בלק", chumash: "במדבר" },
+            { name: "פינחס", chumash: "במדבר" },
+            { name: "מטות", chumash: "במדבר" },
+            { name: "מסעי", chumash: "במדבר" },
+            // דברים
+            { name: "דברים", chumash: "דברים" },
+            { name: "ואתחנן", chumash: "דברים" },
+            { name: "עקב", chumash: "דברים" },
+            { name: "ראה", chumash: "דברים" },
+            { name: "שופטים", chumash: "דברים" },
+            { name: "כי תצא", chumash: "דברים" },
+            { name: "כי תבוא", chumash: "דברים" },
+            { name: "ניצבים - וילך", chumash: "דברים" },
+            { name: "האזינו", chumash: "דברים" },
+            { name: "וזאת הברכה", chumash: "דברים" },
+            // מועדים
+            { name: "ראש השנה", chumash: "מועדים" },
+            { name: "יום כיפור", chumash: "מועדים" },
+            { name: "סוכות", chumash: "מועדים" },
+            { name: "שמיני עצרת", chumash: "מועדים" },
+            { name: "חנוכה", chumash: "מועדים" },
+            { name: "פורים", chumash: "מועדים" },
+            { name: "פסח", chumash: "מועדים" },
+            { name: "שבועות", chumash: "מועדים" },
+            { name: "פרשת שקלים", chumash: "מועדים" },
+            { name: "פרשת זכור", chumash: "מועדים" },
+            { name: "פרשת פרה", chumash: "מועדים" },
+            { name: "פרשת החודש", chumash: "מועדים" }
+        ];
+
+        // מאגר דברי התורה שנשאבו מתיבת המייל של סבא שאול (קבוצת d-t-sohlberg)
+        let lessonsData = [
+            {
+                id: "1851a39c2bdc8850",
+                chumash: "בראשית",
+                parasha: "וישב",
+                year: "תשפ״ג",
+                dateISO: "2022-12-16",
+                dateDisplay: "כ״ב בכסלו תשפ״ג (16.12.2022)",
+                sender: "ירון (מתוך לימוד עם סבא שאול בבית החולים)",
+                title: "שלוות הצדיקים ויראת הרוממות – על פי בעל ה'תוספת ברכה' וה'נועם אלימלך'",
+                verse: "״וַיֵּשֶׁב יַעֲקֹב בְּאֶרֶץ מְגוּרֵי אָבִיו בְּאֶרֶץ כְּנָעַן״ (בראשית ל״ז, א׳)",
+                summary: "בירור תמיהת ה'תוספת ברכה' על רש״י בעניין בקשת יעקב לישב בשלווה, ופנינים מתוך ספר 'נועם אלימלך' שנלמד ליד מיטתו של סבא על יראת השמיים של יעקב ודאגת השבטים לקיום ישראל בגלות.",
+                content: [
+                    "ב״ה ערב שבת קודש פרשת וישב תשפ״ג. תבורך אחותנו חיה שהגתה רעיון נאה. אבינו – סבא שאול שיח' ויחזור במהרה לאיתנו מידי שבוע שולח לנו דברי תורה במשך שנים רבות. השבוע שהה סבא בבית החולים, וננסה לחבר משהו מתוך דברים שלמדתי איתו השבוע.",
+                    "על הפס' בתחילת הפרשה \"וישב יעקב בארץ מגורי אביו בארץ כנען\" אומר רש\"י: \"וישב – ביקש יעקב לישב בשלוה, קפץ עליו רוגזו של יוסף. צדיקים מבקשים לישב בשלוה אומר הקדוש ברוך הוא לא דיין לצדיקים מה שמתוקן להם לעולם הבא, אלא שמבקשים לישב בשלוה בעולם הזה\". לפני שנים הזכיר סבא בהקשר זה את דברי בעל ה\"תוספת ברכה\", שתמה מאד על המדרש ואומר שבכמה מקומות בתורה מבואר ששכר מצווה הוא לשבת בשלווה ומדוע שיסבב הקב\"ה צער ליעקב על בקשתו לישב בשלווה? בהמשך אומר בעל תוספת ברכה שהגירסה ברש\"י מוטעית והגירסה הנכונה היא \"אמר השטן\" ולא \"אמר הקב\"ה\". כך באמת מופיע במדרש רבה וממילא אין כאן ביקורת אמיתית על יעקב אבינו אלא רק קטרוגו של השטן.",
+                    "ליד מיטתו של סבא בבית החולים היה מונח השבוע ספר 'נועם אלימלך', של ר' אלימלך מליז'נסק. סבא שאל אותי מה מופיע שם על המילים 'וישב יעקב'. מצאנו שיש שם רעיון מיוחד: \"וישב יעקב בארץ מגורי אביו, מגורי, לשון (במדבר כב, ג) ויגר מואב, דהיינו שהיה לו ישיבה ועכבה במדרגה זאת תמיד להיותו ביראה ופחד יראת ה' אביו שבשמים\". לפי פירוש זה אין כאן בקשה לישב בשלווה, אלא להיפך – תיאור של יראת השמיים המופלאה של יעקב שהתמיד להיות במדרגה של יראת רוממות גדולה מאבא שבשמיים.",
+                    "בהמשך הפרשה מצאנו פנינה נוספת. על הפסוק \"וילכו אחיו לרעות את צאן אביהם בשכם\" אומר רש\"י: נקוד על 'את' – שלא הלכו אלא לרעות את עצמן. הנועם אלימלך אומר כאן פירוש הפוך: \"ודבר תמוה מאוד לומר זאת על קדושי עליון שבטי י-ה אשר בצילם אנו חיים וקימים בגלות המר הזה... וידוע שצאן נקראו ישראל ועל זה נאמר וילכו לרעות את צאן אביהם, דהיינו ישראל שהלכו לרעותם וליתן דעתם עליהם איך שיהיה להם קיום, על זה אמרו מה פעולה עשאו להדבר הזה שהלכו לרעות את עצמם, רצה לומר לתקן את נפשם שיהיו כולם ברורים לעבודת הבורא ברוך הוא ויעמוד זכותם לישראל בגלות המר הזה\".",
+                    "בהקשר לכך נזכיר דבר שסבא מזכיר פעמים רבות: לאחר השואה ראה אביו של סבא, ר' שמשון מרדכי ז\"ל, חשיבות רבה בהחזרת המוסדות היהודיים שהיו לפני השואה לפעילות מחדש, ובכך היתה בזעיר אנפין דאגה לקיום בגלות כדברי בעל הנועם אלימלך."
+                ]
+            },
+            {
+                id: "18bdce195abf51fc",
+                chumash: "בראשית",
+                parasha: "תולדות",
+                year: "תשפ״ד",
+                dateISO: "2023-11-17",
+                dateDisplay: "ד׳ בכסלו תשפ״ד (17.11.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "חפירת הבארות של יצחק – בין אחיזה בארץ להתחדשות תמידית",
+                verse: "״וַיְקַנְאוּ אֹתוֹ פְּלִשְׁתִּים... וַיֹּאמֶר אֲבִימֶלֶךְ אֶל יִצְחָק לֵךְ מֵעִמָּנוּ כִּי עָצַמְתָּ מִמֶּנּוּ מְאֹד״ (בראשית כ״ו, י״ד-ט״ז)",
+                summary: "על הקשר שבין מאבקם של האבות בבארות ארץ פלשתים למאבקנו בארץ ישראל כיום (נחמה ליבוביץ), ועל חפירת הבאר כסמל להתחדשות רוחנית מתמדת (הרב שטיינזלץ).",
+                content: [
+                    "ב\"ה ערב ש\"ק פרשת תולדות תשפ\"ד. \"ויקנאו אתו פלשתים\" (בראשית כו, יד). דומה שהפסוקים של פרשת השבוע המדברים על דרכם של האבות ביישוב הארץ מזכירים לנו גם את מאבקם של הבנים לאורך הדורות ביישוב הארץ ובכיבושה, והדברים באים לידי ביטוי כואב בדבריו של יצחק באומרו: \"ואתם שנאתם אתי\" (בראשית כו, כז).",
+                    "נחמה ליבוביץ נותנת ביטוי לאותו קשר מיוחד בין מאבקם של האבות ובין המתרחש בימינו לנגד עינינו, וכך היא כותבת: \"האם רוח זו באנוש היתה רק רוחם של פלישתים – הפלסטינאים של תקופת האבות – שלפני כשלושת אלפים וחמש מאות שנה, ימי שבת יצחק באוהל וחופרו באר בכלים פשוטים של התקופה ההיא, או רוח היא באנוש בכל דור ודור ועד ימינו, ימים של עולם ממוכן ומדע גרעיני?\" ואף המשך הדברים הבא אחרי סתימת הבארות ידוע ומוכר ומובן לנו היטב: \"ויאמר אבימלך אל יצחק לך מעמנו כי עצמת ממנו מאד\" (כו, טז).",
+                    "בעיני הרב שטיינזלץ מקבלת העבודה של חפירת הבארות משמעות נוספת, וכך הם דבריו: \"כדי להגיע לנקודה שבה אדם מרגיש את הצורך להתחדש, שבה הוא תמיד מנסה לחפור מחדש את הבאר, וממשיך לשאול 'למה', 'לשם מה' ו'על מה' צריך הרבה אימון והרגל... אדם צריך להתרגל לחשוב ש'ככה' זו תשובה רק של ארץ פלשתים, ומה שהוא צריך לעשות זה לשבת ולחפור בארות. לא כל אחד יכול להיות במדרגה של מחדש, שיכול לחפור באר חדשה. מה שכל אחד יכול וחייב לעשות, זה לקחת את הבארות הישנות ולגלות אותן מעצמו כבריאה חדשה לגמרי\" (חיי עולם, עמ' 62).",
+                    "הנה סיפור הבארות בראיה היסטורית ובראיה פסיכולוגית-רעיונית. ויהא רצון שהעולם יכיר פעם בקשר העמוק שביננו ובין הבארות שאבותינו חפרו ושמרו עליהן לאורך הדורות. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18c0021bce8ff16f",
+                chumash: "בראשית",
+                parasha: "ויצא",
+                year: "תשפ״ד",
+                dateISO: "2023-11-24",
+                dateDisplay: "י״א בכסלו תשפ״ד (24.11.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "פשרו של נדר יעקב: 'אם יהיה א-לוקים עמדי'",
+                verse: "״וַיִּדַּר יַעֲקֹב נֶדֶר לֵאמֹר אִם יִהְיֶה אֱלֹהִים עִמָּדִי וּשְׁמָרַנִי בַּדֶּרֶךְ הַזֶּה...״ (בראשית כ״ח, כ׳)",
+                summary: "כיצד התנה יעקב אבינו תנאים מיד לאחר שהקב״ה הבטיח לו 'והנה אנכי עמך'? עיון בקושיות האברבנאל ובביאורם של רש״י, הרמב״ן ונחמה ליבוביץ.",
+                content: [
+                    "ב\"ה ערב שבת קדש פ' ויצא תשפ\"ד. \"וידר יעקב נדר לאמר אם יהיה אל-קים עמדי\" (בראשית כח, כ). פרשתנו מזכירה בין היתר את הלבטים של יעקב אבינו בתחילת הליכתו לביתו של לבן. הנדר של יעקב אבינו המצוטט למעלה מעורר כמה שאלות.",
+                    "שאלה שדנו בה רבים: מה פירוש \"אם יהיה א-לוקים עמדי\", או בלשונה של נחמה ליבוביץ: מתבקשת השאלה האם יעקב צריך היה לקבל על עצמו את עול מלכותו של הקב\"ה רק בתנאי מסוים שיהיה לו כך וכך? האברבנאל שואל כאן שתי שאלות: השאלה הד' – באמרו 'אם יהיה אלהים עמדי', כי איך היה מספק יעקב במה שנאמר לו בנבואתו והרי נאמר לו באותה שעה 'והנה אנכי עמך' והוא אומר 'אם יהיה א-לקים עמדי'? ונאמר לו 'ושמרתיך' והוא מספק ואומר 'ושמרני'? השאלה הה' – איך נעשה יעקב בנדר הזה עובד על מנת לקבל פרס באמרו 'אם יהיה א-לקים עמדי ושמרני... ונתן לי' כך וכך אז יהיה לי לא-לקים, מכלל שאם לא יעשה לו כל זה לא יהיה לו לא-לוקים ולא יעבדהו?",
+                    "הרמב\"ן מביא את דברי רש\"י שפירש בדומה לאברבנאל את הנדר, ובמילים קצרות הוא גם מתרץ את השאלה: \"לשון רש\"י, אם ישמור לי הבטחות הללו שהבטיחני. וטעם התנאי, שלא יגרום החטא\".",
+                    "כך מסבירה נחמה ליבוביץ את הדברים: יוצא מדבריהם שלא היה מסופק יעקב אבינו חס ושלום שמא יפר הקב\"ה הבטחתו, ולא היה קטן אמונה, אלא שהיה מסופק אם גם לאחר זמן ובפרט בשבתו בניכר בבית לבן ובהשפעות זרים – אם יהיה עדיין ראוי לאותם החסדים ושמא יתלכלך בחטא. לא בה' ובאמיתות דבריו מפקפק יעקב, אלא בו בעצמו ובכוחו לעמוד בניסיונות. יהי רצון שתפילותינו תתקבלנה ברצון לפני אדון כל. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18c1fda2e6a2dfa5",
+                chumash: "בראשית",
+                parasha: "וישלח",
+                year: "תשפ״ד",
+                dateISO: "2023-11-30",
+                dateDisplay: "י״ז בכסלו תשפ״ד (30.11.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "הפנייה לעשו והיחס לאומות העולם – 'מעשה אבות סימן לבנים'",
+                verse: "״וַיְצַו אֹתָם לֵאמֹר כֹּה תֹאמְרוּן לַאדֹנִי לְעֵשָׂו כֹּה אָמַר עַבְדְּךָ יַעֲקֹב...״ (בראשית ל״ב, ה׳)",
+                summary: "המחלוקת במדרשים בין ביקורת על יעקב שקרא לעשו 'אדוני' לבין הנהגת רבי יהודה הנשיא, ודברי הרמב״ן הנוקבים על התרפסות החשמונאים בפני רומא.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת וישלח תשפ\"ד. \"ויצו אותם לאמר כה תאמרון לאדוני לעשו כה אמר עבדך יעקב\"... במדרש מצאנו כמה הערות על מעשהו זה של יעקב אבינו. יש מי שהאשימו אותו על הכבוד הרב שנהג בעשו: \"באותה שעה שקרא יעקב לעשו 'אדוני' אמר לו הקב\"ה: אתה השפלת עצמך וקראת לעשו 'אדוני' שמונה פעמים – חייך, אני מעמיד מבניו שמונה מלכים קודם לבניך\" (בראשית רבה ע\"ה, י\"א).",
+                    "מאידך מצינו במדרש אחר שר' יהודה הנשיא דווקא ראה במעשהו של יעקב הדרכה לדורות: רבנו [ר' יהודה הנשיא] אמר לרב אפס: כתוב אגרת מן שמי למרן מלכא אנטונינוס. קם וכתב: מן יהודה נשיאה למרן מלכא אנטונינוס. לקח רבנו האיגרת וקראה וקרעה. אמר לו: כתוב מן עבדך יהודה למרן מלכא אנטונינוס. אמר לו [רב אפס]: מפני מה אתה מבזה על כבודך? אמר לו: וכי טוב אני מן זקני יעקב? לא כך אמר יעקב 'כה אמר עבדך'?",
+                    "מעבר לוויכוח זה בשאלת הסגנון של הפנייה לגוי השולט, ישנה הערה במדרש על כך שכל פחדו של יעקב היה מיותר. עשו כלל לא התכוון להיפגש כעת עם יעקב: רב הונא פתח (משלי כ\"ו, י\"ז): 'מחזיק באזני כלב עובר מתעבר על ריב לא לו' – אמר לו הקב\"ה: עשו לדרכו היה מהלך והיית משלח אצלו ואומר לו 'כה אמר עבדך יעקב'?",
+                    "הרמב\"ן מביא את המדרש ומוסיף שלא רק יעקב אבינו נכשל בעבירה זו של התרפסות בפני הגויים אלא גם מבני בניו של יעקב, מלכי החשמונאים יהודה ואחיו קשרו קשרים עם הרומאים עוד בזמן שהיוונים משלו בכיפה, ואומר הרמב\"ן שהדבר הביא בסופו של דבר לחורבן בית המקדש השני בידי הרומאים: \"ועל דעתי גם זה ירמוז כי אנחנו התחלנו נפילתנו ביד אדום, כי מלכי בית שני באו בברית עם הרומיים... והיא היתה סבת נפילתם בידם\". ידוע ש\"מעשה אבות סימן לבנים\". גם כיום חששות מפני האומות הם המכוונים לעתים את המדיניות שלנו וד\"ל. יהי רצון שהקב\"ה יעזור לנו במאבקנו עם האומות. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18c9054c18439f82",
+                chumash: "בראשית",
+                parasha: "ויגש",
+                year: "תשפ״ד",
+                dateISO: "2023-12-22",
+                dateDisplay: "י׳ בטבת תשפ״ד (22.12.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "המפגש עם הבן האהוב לעומת כבוד המלכות – הרמב״ן והאברבנאל",
+                verse: "״רַב עוֹד יוֹסֵף בְּנִי חָי אֵלְכָה וְאֶרְאֶנּוּ בְּטֶרֶם אָמוּת״ (בראשית מ״ה, כ״ח)",
+                summary: "האם ידע יעקב אבינו על מכירת יוסף (רמב״ן), וכיצד האברבנאל – שהיה בעצמו שר אוצר במלכות פורטוגל – מפרש את תגובת יעקב לכבודו של יוסף במצרים.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת ויגש. \"ויגידו לו לאמר עוד יוסף חי וכי הוא משל בכל ארץ מצרים ויפג לבו כי לא האמין להם\" (בראשית מה כו). כאשר האחים חוזרים ליעקב ומספרים לו שיוסף עודנו בחיים \"וכי הוא מושל בכל ארץ מצרים\", מתקשה יעקב להאמין להם. התורה ממשיכה בפס' הבא ומתארת איך בכל זאת קיבל יעקב את הבשורה: \"וידברו אליו את כל דברי יוסף... וירא את העגלות אשר שלח יוסף לשאת אותו ותחי רוח יעקב אביהם\".",
+                    "הרמב\"ן דן בשאלה הידועה והמתבקשת: האם ידע יעקב על המכירה? \"יראה לי על דרך הפשט שלא הוגד ליעקב כל ימיו כי אחיו מכרו את יוסף, אבל חשב כי היה תועה בשדה והמוצאים אותו לקחוהו ומכרו אותו אל מצרים, כי אחיו לא רצו להגיד לו חטאתם, אף כי יראו לנפשם פן יקצוף ויקללם, כאשר עשה בראובן ושמעון ולוי. ויוסף במוסרו הטוב לא רצה להגיד לו, ולכך נאמר 'ויצוו אל יוסף לאמר אביך צוה לפני מותו לאמר' וגו'\".",
+                    "האברבנאל עומד על נקודה אחרת (והדברים מעניינים במיוחד ביודענו שהאברבנאל הכיר מהם גינוני מלכות, בהיותו שר האוצר בארמונו של מלך פורטוגל). יוסף אמר לאחיו: \"והגדתם לאבי את כל כבודי במצרים ואת כל אשר ראיתם\". יעקב אומר בתגובה: \"רב עוד יוסף בני חי אלכה ואראנו...\". האברבנאל מדייק ואומר כך: \"ולפי שהם אמרו אל אביהם שני דברים – האחד שהיה יוסף חי והשני שהוא מושל בכל ארץ מצרים, ואין ספק שהיו מאריכין בספור ממשלתו ועניניו – אמר יעקב 'רב עוד יוסף בני חי', כלומר מה לי שיהיה אדון ומושל או שלא יהיה, רב לי לדעת שהוא חי. 'אלכה ואראנו' – רצונו לומר לא אלך שמה לראות את כבודו ואת גדלו ולא כדי שיכלכל אותי בשני הרעב כאשר אמרתם, אבל אלכה ואראנו בלבד כי זהו חשקי וחפצי, לא הכלכלה ולא דבר אחר אלא לראותו בלבד\".",
+                    "בתיאור הזה של דבריו של יעקב מראה לנו התורה שכל הכבוד החיצוני איננו חשוב בעיניו. חשוב ליעקב עצם המפגש עם בנו האהוב שאבד ממנו שנים כה רבות. בימים הקשים הפוקדים אותנו, ננסה לאחוז בנקודות האור, בניסים הרבים שמתרחשים כל העת ויהי רצון שיגבר האור ויסתלקו הצללים. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18cb477824846e3d",
+                chumash: "בראשית",
+                parasha: "ויחי",
+                year: "תשפ״ד",
+                dateISO: "2023-12-29",
+                dateDisplay: "י״ז בטבת תשפ״ד (29.12.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "מלאך האמת ו'שקר לבן' למען השלום – מתוך ספרו של סבא 'בין מדרש לפסיכולוגיה'",
+                verse: "״וַיְצַוּוּ אֶל יוֹסֵף לֵאמֹר אָבִיךָ צִוָּה לִפְנֵי מוֹתוֹ לֵאמֹר כֹּה תֹאמְרוּ לְיוֹסֵף אָנָּא שָׂא נָא פֶּשַׁע אַחֶיךָ...״ (בראשית נ׳, ט״ז-י״ז)",
+                summary: "על היתר השינוי מפני השלום, המדרש על השלכת האמת ארצה בבריאת האדם, והפרדוקס שבין עולם אידיאלי לחיי היומיום האנושיים.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת ויחי תשפ\"ד. \"ויצוו אל יוסף לאמר אביך צוה לפני מותו לאמר כה תאמרו ליוסף אנא שא נא פשע אחיך וחטאתם כי רעה גמלוך ועתה שא נא לפשע עבדי אלהי אביך ויבך יוסף בדברם אליו\" (נ, טז-יז).",
+                    "פרשתנו מזכירה שאחרי מותו של יעקב האחים מתייצבים לפני יוסף ואומרים לו – כביכול בשמו של יעקב – שהוא ביקש שיוסף יסלח להם על העוול שגרמו לו. דומה שיעקב כלל לא אמר להם כך, ויש בכך 'שקר לבן' שהיה לצורך שיפור אווירה ביניהם. חז\"ל למדו בכך עיקרון חשוב: מותר לשנות למען השלום (יבמות סה, ע\"ב).",
+                    "קיים מדרש מרתק שמדגים את הדבר (בראשית רבה פרשה ח סימן ה): אמר ר' סימון בשעה שבא הקדוש ברוך הוא לבראות את אדם הראשון, נעשו מלאכי השרת כיתים כיתים וחבורות חבורות, מהם אומרים אל ייברא, ומהם אומרים ייברא, וזה מה שכתוב (תהלים פה) 'חסד ואמת נפגשו צדק ושלום נשקו'. חסד אומר ייברא שהוא גומל חסדים, ואמת אומר אל ייברא שכולו שקרים, צדק אומר ייברא שהוא עושה צדקות, שלום אומר אל ייברא דכוליה קטטה. מה עשה הקדוש ברוך הוא? נטל אמת והשליכו לארץ וזהו מה שכתוב (דניאל ח) 'ותשלך אמת ארצה' (הרחבת דברים בספרי \"בין מדרש לפסיכולוגיה\" בעמ' 32 ואילך).",
+                    "מה המדרש הזה אומר לנו היום? דומה שהפירוש הוא שאמנם האמת האמיתית נמצאת במרומים, ואני מעז לומר שבכך גם חוזקה וגם חולשתה! לדעתי לפנינו פרדוקס מרתק: האדם הפשוט מתקשה לחיות בעולם האידיאלי של מלאך האמת, משום שאנחנו חיים בעולם אנושי 'רגיל'. בחיי היומיום אנחנו בלית ברירה זקוקים מדי פעם ל'שקר לבן' כי אלולא כך אין לנו אפשרות להחזיק מעמד ב'עלמא דשקרא' ולפעמים פשוט שאין לנו ברירה אחרת. בעולם אידיאלי אין צורך ב'שקר קטן'... אני מציע שננסה לחשוב על עומק שמשלב גם את חוויותיו של האדם הרגיל וברוך ה' גם את גדולתו. דומני שלפנינו הנחיה חשובה לחיי היומיום שלנו!"
+                ]
+            },
+            {
+                id: "18cd69992f10bbf4",
+                chumash: "שמות",
+                parasha: "שמות",
+                year: "תשפ״ד",
+                dateISO: "2024-01-05",
+                dateDisplay: "כ״ד בטבת תשפ״ד (05.01.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "הידרדרות השעבוד והתודעה של היציאה מן הגלות – הרמב״ן והרב שטיינזלץ",
+                verse: "״וַיָּקָם מֶלֶךְ חָדָשׁ עַל מִצְרָיִם... הָבָה נִתְחַכְּמָה לוֹ״ (שמות א׳, ח׳-י׳)",
+                summary: "שלבי השעבוד המדורגים של פרעה (רמב״ן) והאבחנה החריפה של הרב שטיינזלץ בין מי שמחפש פתרון פרטי בגלות לבין מי שמבין שגאולה מחייבת מהפכה.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת שמות תשפ\"ד. \"ויקם מלך חדש על מצרים... הבה נתחכמה לו\" (שמות א' ח-י). שעבוד מצרים לא נעשה בבת אחת. בכל הדורות וכבר במצרים ידעו המשעבדים כיצד \"להרדים\" את עם ישראל הכבוש תחת ידם. כך אומר הרמב\"ן בפס' י': \"לא ראה פרעה וחכמי יועציו להורגם בחרב כי תהיה בגידה גדולה... אבל אמר שיעשה דרך חכמה שלא ירגישו ישראל כי באיבה יעשו בהם. ולכן הטיל בהם מס... ואחרי כן ציווה בסתר למילדות להרוג הזכרים על האבניים ואפילו היולדות עצמן לא ידעו בהן, ואחרי כן ציווה לכל עמו כל הבן הילוד...\".",
+                    "הרב שטינזלץ בספרו 'חיי עולם' גם הוא מתייחס לשלבים השונים בשעבוד מצרים, אבל הוא דן מצד ההבנה של עם ישראל את המציאות בה הם נתונים. בתקופה הראשונה יעקב ומשפחתו יכלו לחיות בתנאים הטובים של ארץ גושן, אולם במהלך השנים השתנה המצב. לדברי הרב שטיינזלץ, היו בוודאי יהודים ששיתפו פעולה וביקשו, למשל, להתמנות לשוטר ואחרי זה לנוגש. יהודים אלה התייחסו לשעבוד כבעיה פרטית, מצב פרטי מורכב שיש לפותרו בפתרון מקומי. יהודים אלה סבורים היו (אולי בסוג של הדחקה) שהמציאות הכוללת היא בסה\"כ בסדר.",
+                    "וכאן אומר הרב שטינזלץ משפט חריף: אדם שמתייחס אל עצמו כאדם פרטי וממילא אינו מבין שיש כאן גלות, שעם ישראל נמצא בגלות – לא ייצא ממצרים. רק מי שמבין שהוא בגלות יש סיכוי שיצא ממצרים. לעומת זאת, היו בוודאי גם כאלה שהבינו שבעת הגלות יש צורך במעין מהפיכה כדי להתמודד עם המציאות החדשה. שינויים קטנים לא יעזרו. גר – מי שמגיע למקום חדש כאדם זר – מחפש דרכון ומסתפק בכך. לא כך כשמדובר על הגלות. היציאה מן הגלות מחייבת שינוי מהותי. שינוי זה נקרא גאולה – שינוי מהותי של סדרי עולם.",
+                    "בפתחו של ספר הגלות והגאולה (רמב\"ן) נתפלל לגאולה שלימה במהרה בימינו. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18cfd0eb57c9c509",
+                chumash: "שמות",
+                parasha: "וארא",
+                year: "תשפ״ד",
+                dateISO: "2024-01-12",
+                dateDisplay: "ב׳ בשבט תשפ״ד (12.01.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "הקשבה כבסיס לתקשורת ולנבואה – יסודו של ה'שפת אמת'",
+                verse: "״וַיְדַבֵּר מֹשֶׁה לִפְנֵי ה' לֵאמֹר הֵן בְּנֵי יִשְׂרָאֵל לֹא שָׁמְעוּ אֵלַי וְאֵיךְ יִשְׁמָעֵנִי פַרְעֹה וַאֲנִי עֲרַל שְׂפָתָיִם״ (שמות ו׳, י״ב)",
+                summary: "חידושו של השפת אמת שהנביא מתנבא בכוח שמיעת המקבלים, והלקח המעשי לתקשורת בין בני אדם – לוודא שהצד השני בשל לקלוט את המסר.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת וארא תשפ\"ד. וַיְדַבֵּר מֹשֶׁה לִפְנֵי ה' לֵאמֹר הֵן בְּנֵי יִשְׂרָאֵל לֹא שָׁמְעוּ אֵלַי וְאֵיךְ יִשְׁמָעֵנִי פַרְעֹה וַאֲנִי עֲרַל שְׂפָתָיִם (שמות ו, י\"ב).",
+                    "בדברי השפת אמת על פסוק זה מצאנו יסוד חשוב ביותר: \"פרשנו כבר כי ע\"י שבנ\"י לא שמעו לכן הוא ערל שפתים. כי הנביא מתנבא בכח שמיעת בנ\"י כדכ' נביא מקרבך כו', והנה כ' שמעה עמי ואדברה ואחז\"ל אין מעידין אלא בשומע וזה הי' עיכוב עשרת הדיברות. והי' הדיבור בגלות כל זמן שלא הוכנו המקבלים לשמוע דבר ה'\" (שנה תרנ\"ט).",
+                    "כוונת השפת אמת לומר שכדי שמסר מסוים ימצא אוזן קשבת אצל אדם אחר יש צורך שהאדם שהמסר מופנה אליו יהיה מוכן לקלוט את הדברים. לעתים אדם מדבר ומנסה לשכנע בלהט גדול, והוא אינו מבין או אינו שם לב, שהצד השני כלל לא מוכן כרגע לקבל את הדברים.",
+                    "הדבר הזה עם כל פשטותו מלמד אותנו דבר חשוב בנושא של כח הדיבור ובכלל בתקשורת בין בני אדם: לא מספיק לומר למישהו דבר מסוים, אלא יש לעשות מאמץ מיוחד כדי לבדוק שהמסר אמנם ייקלט אצל השני... יהי רצון שהקב\"ה ישמע את צעקותינו ויציל אותנו מהמצוקה שאנו נמצאים בה. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18d44c3c6601df3b",
+                chumash: "שמות",
+                parasha: "בשלח",
+                year: "תשפ״ד",
+                dateISO: "2024-01-26",
+                dateDisplay: "ט״ז בשבט תשפ״ד (26.01.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "מדוע אמרו ישראל שירה על הים בעוד המלאכים נאסרו בכך?",
+                verse: "״עָזִּי וְזִמְרָת יָהּ וַיְהִי לִי לִישׁוּעָה״ (שמות ט״ו, ב׳)",
+                summary: "ביאורו של בעל 'תוספת ברכה' להבדל שבין שירת המלאכים – שהייתה על טביעת המצרים – לבין שירת ישראל שהתמקדה בהודאה על ישועתם ויציאתם לחירות.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת בשלח תשפ\"ד. \"עזי וזמרת יה ויהי לי לישועה\" (שמות ט\"ו, ב). בעל \"תורה תמימה\" בספרו \"תוספת ברכה\" מדבר על הלשון \"ויהי לי לישועה\" ושואל על מה מדובר כאן הלא כל השירה מתארת את ישועת ה', \"ולא שייך לפרש את הפרט במקום שכל הכלל יסוב עליו\".",
+                    "ממשיך שם בתוספת ברכה ומסביר על פי הגמרא הידועה במסכת מגילה (י, ב): ואמר רבי יוחנן: מאי דכתיב ולא קרב זה אל זה כל הלילה – בקשו מלאכי השרת לומר שירה, אמר הקדוש ברוך הוא: מעשה ידי טובעין בים ואתם אומרים שירה? אומר בעל התוספת ברכה, שלא נכון לומר שירה על אובדן אנשים – \"יען כי כל מין האדם הוא יציר כפיו של הקב\"ה ואם כן קשה איך אמרו ישראל שירה על הים\".",
+                    "לכן הוא מסביר שיש הבדל בין שירה של ישראל לשירה של המלאכים: \"כי על האמת עיקר יסוד טעם השירה של ישראל מוסב על חופשתם משיעבודם לפרעה ויציאתם מעבדות לחירות... ועל זה מוסב עיקר טעם השירה. ואם דרך אגב זכרו גם מעניין פרעה וטביעתו בים זה הוא רק אגב התפעלות נפשם על כל הנעשה עמהם אבל לא עשו פרט זה לעיקר ולכן אין בזה קפידא\". כלומר אצל ישראל מטרת שירת הים להודות על יציאת ישראל לחירות.",
+                    "\"ולא כן המלאכים. הם לא היו במצרים, לא נשתעבדו לפרעה ולא עבדו אותו וכל רעה לא אונה להם ולכן אין להם כל חוב ולא רגש להודות ולשורר על דבר שלא חשו ולא הרגישו. ונשאר טעם שירתם רק על אובדן מצרים בטביעתם בים וזה אין רצוי לה'\". מסיים התוספת ברכה שזה נלמד מהפסוק: \"ולפי זה יתבאר הלשון 'עזי וזמרת יה ויהי לי לישועה' – יען כי הוא היה לי לישועה לצאת מעבדות לחירות ועל זה יסוד טעם זמרתי בעיקר\". אחינו כל בית ישראל הנתונים בצרה ובשביה המקום ירחם עליהם ויוציאם מצרה לרווחה. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18d68ab2f1e6181b",
+                chumash: "שמות",
+                parasha: "יתרו",
+                year: "תשפ״ד",
+                dateISO: "2024-02-02",
+                dateDisplay: "כ״ג בשבט תשפ״ד (02.02.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "העולם שותק ומחריש – משמעות אחדותו של הקב״ה במתן תורה ובקריאת שמע",
+                verse: "״אָנֹכִי ה' אֱלֹהֶיךָ אֲשֶׁר הוֹצֵאתִיךָ מֵאֶרֶץ מִצְרַיִם מִבֵּית עֲבָדִים״ (שמות כ׳, ב׳)",
+                summary: "על המדרש 'ציפור לא צווח, עוף לא פרח' בשעת מתן תורה, ההבנה שה' כולל את כל הכוחות בעולם, והקשר בין מעמד הר סיני לקריאת שמע.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת יתרו תשפ\"ד. \"אנוכי ה' א-לוקיך אשר הוצאתיך מארץ מצרים מבית עבדים\". נאמר במדרש (שמות רבה פרשה כט סימן ט): אמר ר' אבהו בשם ר' יוחנן כשנתן הקדוש ברוך הוא את התורה צפור לא צווח, עוף לא פרח, שור לא געה, אופנים לא עפו, שרפים לא אמרו קדוש קדוש, הים לא נזדעזע, הבריות לא דברו, אלא העולם שותק ומחריש, ויצא הקול 'אנכי ה' אלהיך', וכן הוא אומר (דברים ה) 'את הדברים האלה דבר ה' אל כל קהלכם קול גדול ולא יסף', אמר ר' שמעון בן לקיש מהו 'ולא יסף' אלא כשאדם קורא לחבירו יש לקולו בת קול, והקול שהיה יוצא מפי הקדוש ברוך הוא לא היה לקולו בת קול... כשדבר הקדוש ברוך הוא על הר סיני השתיק כל העולם כדי שידעו הבריות שאין חוץ ממנו, ואמר 'אנכי ה' אלהיך', ולעתיד לבא כתיב (ישעיה נא) 'אנכי אנכי הוא מנחמכם'.",
+                    "המדרש הזה מדגיש את אחדותו של הקב\"ה. אחדות לא במובן של \"אחד ולא שניים\" אלא במובן שה' הוא כולל את כל הכוחות שישנם בעולם. זה גם פירוש המילה \"אחד\" בקריאת שמע הנאמרת על ידינו בכל יום, קריאת שמע שקשורה מאד גם למתן תורה וכדברי המדרש (דברים רבה ב, ל\"א): \"ומהיכן זכו ישראל לקרות שמע? אמר רבי פנחס בר חמא: ממתן תורה זכו ישראל לקרות שמע. כיצד את מוצא? לא פתח הקדוש ברוך הוא בסיני תחלה אלא בדבר זה: אמר להם שמע ישראל אנכי ה' אלהיך, נענו כולן ואמרו ה' אלהינו ה' אחד, ומשה אמר ברוך שם כבוד מלכותו לעולם ועד\".",
+                    "המדרש הראשון מסיים ב\"אנוכי אנוכי הוא מנחמכם\" – וזו כמובן הציפייה, באווירה הקשה של המלחמה שאנו נתונים בה, יהי רצון שישמע ה' את צעקתנו ויקבל בטובו את תחנונינו לברכה ונזכה במהרה לבשורות טובות ישועות ונחמות. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18d8c8201db54552",
+                chumash: "שמות",
+                parasha: "משפטים",
+                year: "תשפ״ד",
+                dateISO: "2024-02-09",
+                dateDisplay: "ל׳ בשבט תשפ״ד (09.02.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "מאי שוחד? 'שהוא חד' – הדיין המאבד את שותפותו עם הקב״ה",
+                verse: "״וְשֹׁחַד לֹא תִקָּח כִּי הַשֹּׁחַד יְעַוֵּר פִּקְחִים וִיסַלֵּף דִּבְרֵי צַדִּיקִים״ (שמות כ״ג, ח׳)",
+                summary: "פירוש מחודש של בעל 'תוספת ברכה' לדברי הגמרא בכתובות: הדיין שלוקח שוחד אינו נעשה 'אחד' עם הנותן בלבד, אלא נשאר 'חד' – לבד, ללא שותפות עם הקב״ה.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת משפטים תשפ\"ד. \"ושֹׁחַד לֹא תִקָּח כִּי הַשֹּׁחַד יְעַוֵּר פִּקְחִים וִיסַלֵּף דִּבְרֵי צַדִּיקִים\". בפירוש המילה שוחד נאמר בגמרא בכתובות ק\"ה, ב: \"מאי שוחד? שהוא חד (=אחד)\". ופירש רש\"י שם: \"הנותן והמקבל נעשים לב אחד\". השוחד גורם למקבל להזדהות לגמרי עם הנותן וממילא כשמדובר בדיין הוא לא יוכל כלל לראות את הצד השני.",
+                    "בעל תוספת ברכה מעיר שלפי זה היה צריך להיות כתוב \"שהם חד\" ולא \"שהוא חד\" כי מדובר על שני אנשים – נותן ומקבל. אבל בגמרא הלא כתוב בפירוש 'שהוא חד'?",
+                    "רצה בעל תוספת ברכה לבאר שאולי מדובר על הדיין עצמו, והוא מסביר: דיין שדן דין אמת לאמיתו עליו נאמר בגמ' בשבת: \"כל דיין שדן דין אמת לאמיתו כאילו נעשה שותף להקב\"ה במעשה בראשית\". באר התוספת ברכה – \"ששניהם מעמידים על האמת וכמבואר באבות אשר על האמת העולם עומד\" וממשיך שם: \"והנה זה הוא רק בדיין שדן לאמיתו הוא נעשה שותף להקב\"ה, אבל זה הלוקח שוחד ומטה הדין לזכות הנותן ומועל בהאמת, הלך לו השיתוף שלו עם הקב\"ה ונשאר הוא 'חד' (=אחד)\".",
+                    "כלומר, יש במילה שוחד רמז לכך שהדיין לוקח השוחד נהיה אחד, לבד – הוא כבר איננו שותף עם הקב\"ה במעשה בראשית. ויהי רצון שהקב\"ה ישמע את קולנו ויביא לנו בקרוב שלום בארצנו. סבא."
+                ]
+            },
+            {
+                id: "18daf39cf656ddbf",
+                chumash: "שמות",
+                parasha: "תרומה",
+                year: "תשפ״ד",
+                dateISO: "2024-02-16",
+                dateDisplay: "ז׳ באדר א׳ תשפ״ד (16.02.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "להרים ולהגביה את החומר אל הקודש – הרב זוין והרבי מקוצק",
+                verse: "״דַּבֵּר אֶל בְּנֵי יִשְׂרָאֵל וְיִקְחוּ לִי תְּרוּמָה... זָהָב וָכֶסֶף וּנְחֹשֶׁת״ (שמות כ״ה, ב׳-ג׳)",
+                summary: "השורש 'רום' במילה תרומה מלמד על כוחו של האדם לרומם את החומר הגשמי, ולראות את העומק והקדושה גם בדברים ובאנשים הפשוטים.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת תרומה תשפ\"ד. \"דַּבֵּר אֶל בְּנֵי יִשְׂרָאֵל וְיִקְחוּ לִי תְּרוּמָה\" – מסביר הרב זוין בספרו 'לתורה ולמועדים' שהמילה תרומה, שורשה 'רום' ועניינו הרמה והגבהה. ניתן כאן כח מיוחד לישראל להרים ולהגביה דברים גשמיים, דברים חומריים ולעשותם קודש.",
+                    "\"וְזֹאת הַתְּרוּמָה אֲשֶׁר תִּקְחוּ מֵאִתָּם זָהָב וָכֶסֶף וּנְחֹשֶׁת\" – זהב פשוט וכסף גשמי ונחושת חומרית וכן כל שאר הדברים מצורכי העולם הזה, מתקדשים ומתרוממים על ידי מעשה אדם מישראל כשמשתמש בהם לצורכי קדושה. כעין זה כתוב בפרשת משפטים: \"ואנשי קודש תהיון לי\", ואמר הרבי מקוצק: כך אמר ה': מלאכים ושרפים וחיות הקודש יש לי די מבלעדיכם. איני זקוק שתהיו לי מלאכים אלא \"אנשי קודש\" – שתהיו בני אדם ותחיו כבני אדם וכבני אדם תהיו לי קדושים. אף כאן: הציווי \"ויקחו לי תרומה\" מלמדנו ומחייב אותנו להשריש את הקדושה בכל הדברים הגשמיים של העולם כזהב, כסף ונחושת וכו'. [עד כאן מהרב זוין].",
+                    "הדברים עמוקים וחשובים. לדעת לראות איך דברים הנראים פשוטים שמקיפים אותך יכולים להתרומם, להתעלות ולהתקדש, ואיך אנשים שנמצאים בסביבתך ונראים פשוטים ורגילים יש בהם עומק, יש בהם חיבור לטוב ולקודש. כך מעודד אותנו הרב זוין לכבד גם את האנשים הפשוטים בסביבה שלנו. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "1956dd2bf3bbfd42",
+                chumash: "שמות",
+                parasha: "תצווה",
+                year: "תשפ״ה",
+                dateISO: "2025-03-07",
+                dateDisplay: "ז׳ באדר תשפ״ה (07.03.2025)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "שנים ליום תמיד – כוחה של ההתמדה והרש״ר הירש על סמל הכבש",
+                verse: "״וְזֶה אֲשֶׁר תַּעֲשֶׂה עַל הַמִּזְבֵּחַ כְּבָשִׂים בְּנֵי שָׁנָה שְׁנַיִם לַיּוֹם תָּמִיד״ (שמות כ״ט, ל״ח)",
+                summary: "מדוע פרשת התמיד מופיעה בתוך פרשיות המשכן (הרש״ר הירש), ההבדל בין הכבש הכפות לבין הכבש החופשי של ישראל, והמדרש על הפסוק הכולל ביותר בתורה.",
+                content: [
+                    "פרשת תצווה ממשיכה את פרשת תרומה ומשלימה את בניין המשכן. פרשייה נוספת שאיזכורה כאן מפתיע במקצת היא פרשת התמיד: \"וזה אשר תעשה על המזבח כבשים בני שנה שנים ליום תמיד\". הרש\"ר הירש מסביר שיש כאן כוונה מיוחדת בהזכרת פרשת התמיד בתוך כדי פרקי הקמת המשכן וחנוכתו: \"אין בקיום הציוויים האלה כשלעצמם כדי לממש את התכלית המובטחת של השכנת שכינת ה' בקרב העם... רק התמסרות העם יום יום אל חזון התעודה היהודית המתגלם במקדש, התמסרות הבאה לידי ביטוי על ידי עבודת התמיד של הכהנים בתוך המקדש, משיגה את התכלית הזאת ועושה את המקדש למעון השכינה\".",
+                    "בסוף דבריו מביא הרב הירש עוד הערה מעניינת. ברמב\"ם (תמידין ומוספין א, י) כתוב בעקבות המשנה במסכת תמיד: \"ולא היו כופתין את הטלה... אלא אוחזין ידיו ורגליו בידיהן\". הגמרא בארה הלכה זו לפי דעה אחת: \"משום דמהלך בחוק העמים\". הרב הירש מסביר שיש שתי נקודות מבט על הכבש המובל לשחיטה כקרבן: \"בהשקפה היהודית מסמל כבש בן שנה, זכר ותמים את רעננות נעורי הנצח, שמתוכה מתמסר אדם אל הנהגת רועהו ומוצא בכך את תוכן חייו. בניגוד לכך רואה אותה השקפה לא-יהודית ב'כבש' סמל לסבל וייסורים שאדם מקבל עליו ללא התנגדות, בראותו בעינויי מוות את האידיאל של תעודת חייו... לא הכבש הכבול והכפות, אלא בעל-החיים החופשי הוא הסמל של ישראל, המתמסר מרצונו להנהגתו ולהנהלתו של רועהו\".",
+                    "קרבן התמיד, כנגדו תוקנו לנו תפילות שחרית ומנחה. ישנו מדרש מופלא המובא בהקדמת עין יעקב: \"בן זומא אומר מצינו פסוק כולל יותר והוא שמע ישראל וגו'. בן ננס אומר מצינו פסוק כולל יותר והוא ואהבת לרעך כמוך. שמעון בן פזי אומר מצינו פסוק כולל יותר והוא את הכבש האחד תעשה בבוקר וגו'\". 'שמע ישראל' – יסוד האמונה; 'ואהבת לרעך כמוך' – יסוד המצוות שבין אדם לחבירו; ועל כולם: קרבן התמיד – להדגיש את הצורך והחשיבות של העבודה התדירית מידי יום בפתחו ובסופו של היום."
+                ]
+            },
+            {
+                id: "195921d0c0de8695",
+                chumash: "שמות",
+                parasha: "כי תשא",
+                year: "תשפ״ה",
+                dateISO: "2025-03-14",
+                dateDisplay: "י״ד באדר תשפ״ה (14.03.2025)",
+                sender: "סבא שאול / ירון (לקראת פורים)",
+                title: "פיטום הקטורת ומר דרור – לקט מקורות והלכות",
+                verse: "״וַיֹּאמֶר ה' אֶל מֹשֶׁה קַח לְךָ סַמִּים נָטָף וּשְׁחֵלֶת וְחֶלְבְּנָה סַמִּים וּלְבֹנָה זַכָּה בַּד בְּבַד יִהְיֶה״ (שמות ל׳, ל״ד)",
+                summary: "ליקוט מקורות על י״א סממני הקטורת, חישוב המשקלים (368 מנים), טעם אמירת הקטורת מתוך הכתב, והקשר בין 'מר דרור' למרדכי היהודי בפורים.",
+                content: [
+                    "פורים שמח! מקוצר הזמן צירפתי מקורות יפים על פיטום הקטורת המופיעה בפרשתנו, ורק נזכיר שהגמרא בחולין קל\"ט אומרת: מרדכי מן התורה מניין? שכתוב (אצלנו בהכנת שמן המשחה) \"מר דרור\" והתרגום – 'מירא דכיא'. וראיתי שהסבירו שכשם שהרמב\"ן אומר שהמור היה צריך להיות מופק מחיה חופשית, הרי זה מתאים למרדכי שלא כרע ולא השתחווה – היה בן חורין אמיתי.",
+                    "תלמוד בבלי מסכת כריתות (דף ו עמוד א): \"ת\"ר: פיטום הקטרת, הצרי והציפורן והחלבנה והלבונה משקל שבעים של שבעים מנה, מור וקציעה שיבולת נרד וכרכום משקל ששה עשר של ששה עשר מנה, הקושט שנים עשר, קילופה שלשה, וקנמון תשעה... קטרת היתה נעשית שס\"ח מנה, שס\"ה כנגד ימות החמה, שלשה מנין יתירין שמהן מכניס כהן גדול מלא חפניו ביום הכיפורים\".",
+                    "בית יוסף (אורח חיים סימן קלג): \"כתב רבינו הגדול מהר\"י אבוהב ז\"ל שאין לומר פיטום הקטורת אלא מתוך הכתב שמא יחסר אחד מהסמנים ויהא חייב מיתה בקריאה כמו בהקטרה, ואולי שמזה הטעם אין אומרים אותו במקצת מקומות אף על פי שאומרים פרשת הקרבנות\". ודרכי משה כתב שהמנהג שלא לאומרו בחול משום שטרודים למלאכתן ויש לחוש שידלגו בה, ובשבת ויום טוב אומרים אותו.",
+                    "ספר מורה הנבוכים (חלק ג פרק מה): \"וכאשר היו שוחטים במקום המקודש בהמות רבות בכל יום... אין ספק שאילו היו מניחים אותו על זה הענין היה ריחו כריח מקומות הבשר, מפני זה צוה להקטיר בו הקטורת שתי פעמים בכל יום, בבקר ובין הערבים, להטיב ריחו וריח בגדי כל העובד בו... כי הנפש תתרחב מאד לריח הטוב\"."
+                ]
+            },
+            {
+                id: "18e1d1e52f7841d3",
+                chumash: "שמות",
+                parasha: "ויקהל",
+                year: "תשפ״ד",
+                dateISO: "2024-03-08",
+                dateDisplay: "כ״ח באדר א׳ תשפ״ד (08.03.2024)",
+                sender: "סבא שאול (נשלח ישירות מסבא)",
+                title: "הפלא שבהופעת בצלאל וכל חכמי הלב מתוך עבדות מצרים",
+                verse: "״רְאֵה קָרָאתִי בְשֵׁם בְּצַלְאֵל בֶּן אוּרִי בֶן חוּר לְמַטֵּה יְהוּדָה... כֹּל אֲשֶׁר נְשָׂאוֹ לִבּוֹ לְקָרְבָה אֶל הַמְּלָאכָה״ (שמות ל״א, ב׳ / ל״ו, ב׳)",
+                summary: "ביאורי העמק דבר, הרמב״ן, נחמה ליבוביץ והמלבי״ם על קריאת 'ראה / ראו': כיצד צמחו אומנים עדינים בעם שיצא מעבודת פרך, וכיצד יודע אדם שנשא אותו לבו לשליחות.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת ויקהל תשפ\"ד. \"ראה קראתי בשם בצלאל בן אורי בן חור למטה יהודה\". לפי הפשט משמעות 'ראה' היא: התבונן על הטובה שאני עושה בזה, שלא תהא צריך לחפש אחר הרבה אומנים מכל המלאכה, ועתה הנה ראיתי בשם אומן אחד שבו יכלול הכלל והוא ישגיח על כל מיני אומנויות (העמק דבר).",
+                    "הרמב\"ן אומר דבר נוסף: \"אמר ה' למשה 'ראה קראתי בשם' ומשה אמר לישראל 'ראו קרא ה' בשם', והטעם: כי ישראל במצרים פרוכים בעבודת חומר ובלבנים... והוא פלא שיימצא בהם אדם חכם גדול בכסף ובזהב\". ומסכמת את הדברים נחמה ליבוביץ: \"הפלא הגדול הוא הימצאות אומן גדול רב-צדדי כזה בעם שזה עתה יצא מעבדות ועבודת פרך... שחסרה לו כל מסורת של מלאכות עדינות ושל יצירה אומנותית, וזהו 'ראה' – 'ראו'\" (עיונים עמ' 478).",
+                    "למרות שאבותינו כרגע יצאו ממצרים, הרי בכ\"ז יש מי שחש בלבו שבכוחו לעסוק בבניית המשכן, וכדברי המלבי\"ם: \"ויקרא משה... כל אשר נשאו לבו לקרבה... הנה במצרים לא למדו אומניות כאלה כי היו עושים בחומר ובלבנים, רק ה' השפיע עליהם חכמה לזה באמצעות בצלאל. אבל מאין ידע כל איש שהוא יהיה מוכן לזה? ושנתן ה' חכמה בלבו למלאכות אלה? אמר שזה הרגיש 'כל אשר נשאו לבו לקרבה' – שאם הרגיש בלבו תשוקה אל המלאכה והרגיש שיוכל לקרב אל המלאכה, זה היה הסימן שנתן ה' חכמה בלבו ובא לפני משה\".",
+                    "יהי רצון שנזכה שגם המנהיגים שלנו יהיו אנשים שירגישו שיוכלו באמת לשאת את המשא הגדול והאחראי של הובלת עם ישראל ומדינת ישראל בכל המבחנים והאתגרים וה' ישפיע עליהם חכמה ותבונה. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "195dc8072e36e1a6",
+                chumash: "שמות",
+                parasha: "פקודי",
+                year: "תשפ״ה",
+                dateISO: "2025-03-28",
+                dateDisplay: "כ״ח באדר תשפ״ה (28.03.2025)",
+                sender: "דרשת בר המצווה של ידידיה (בשם המשפחה וסבא שאול)",
+                title: "כ״ה באדר – מחלוקת רבי אליעזר ורבי יהושע בבריאת העולם ובבניין המשכן",
+                verse: "״וַיַּעַשׂ בְּצַלְאֵל אֶת הָאָרֹן...״ (שמות ל״ז, א׳ / רש״י פקודי)",
+                summary: "דרשת בר המצווה של ידידיה בכ״ה באדר (יום בריאת העולם לרבי יהושע), המקשרת בין הראש והלב (מהר״ל), סדר הסליחות (הגר״א), והוויכוח בין משה לבצלאל על סדר בניית המשכן.",
+                content: [
+                    "ב\"ה כ\"ה אדר תשפ\"ה. שלום לכולם, ברשות הרבנים, סבא, סבתות, הוריי היקרים, וכל האורחים. היום היה יום כ\"ה באדר, יום בריאת העולם לפי רבי יהושע בגמרא בראש השנה (דף י' עמוד ב) ובדברי התוספות.",
+                    "המהר\"ל מפראג מסביר את מחלוקת רבי אליעזר (שנברא בתשרי) ורבי יהושע (שנברא בניסן) בצורה רעיונית: ניסן הוא כנגד הלב ששם החיות, הצמיחה וההתחדשות לאחר החורף, ואילו תשרי הוא כנגד הראש, ששם השכל, המגמה והתכלית. לפי רבי יהושע הגאולה העתידה תהיה בניסן, כמו ביציאת מצרים, ואף אינה תלויה בתשובה.",
+                    "ההסבר הזה מזכיר גם את הדו-שיח שבין משה רבינו ובצלאל – כפי שמופיע בדברי רש\"י בתחילת פרשת פקודי. משה אמר לבצלאל לעשות ארון תחילה, ובצלאל אמר לו שדרך בני אדם לבנות קודם את הבית ואחר כך את הכלים. ומשה עונה לו \"בצל א-ל היית\", משבח אותו שכך באמת אמר הקב\"ה.",
+                    "נראה שמשה מתייחס למגמה ולמטרה של המשכן ולכן הוא אמר שיש לבנות בהתחלה את הארון שהוא מבטא את השראת השכינה שהיא תכלית המשכן, ואילו בצלאל מתייחס למעשה – איך הדברים מופיעים במציאות בהדרגה: קודם החוץ ואח\"כ הפנים, קודם הבית ואחר כך הכלים. כך התחברו לנו יחד יום בר המצווה כ\"ה באדר עם פרשת החודש ועם פרשת פקודי. אסיים בדברי הר\"ן: \"כיון שנפסקה הלכה כר' יהושע... ממילא נפסקה הלכה במה שאמר שבניסן אנו עתידין ליגאל\"."
+                ]
+            },
+            {
+                id: "18e652c5efd86ba3",
+                chumash: "ויקרא",
+                parasha: "ויקרא",
+                year: "תשפ״ד",
+                dateISO: "2024-03-22",
+                dateDisplay: "י״ב באדר ב׳ תשפ״ד (22.03.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "אל״ף זעירא בויקרא – יבואו טהורים ויתעסקו בטהורים",
+                verse: "״וַיִּקְרָא אֶל מֹשֶׁה וַיְדַבֵּר ה' אֵלָיו מֵאֹהֶל מוֹעֵד לֵאמֹר״ (ויקרא א׳, א׳)",
+                summary: "קושיות בעל 'תוספת ברכה' על פירוש בעל הטורים בעניין ענוות משה, והרמז שבאל״ף זעירא לתינוקות של בית רבן המתחילים לימודם בחומש ויקרא.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת ויקרא תשפ\"ד. \"ויקרא אל משה\" – אומר בעל הטורים על אתר: \"אל\"ף דויקרא זעירא. שמשה היה גדול ועניו לא רצה לכתוב אלא 'ויקר' לשון מקרה כאילו לא דבר הקדוש ברוך הוא עמו אלא בחלום כדרך שנאמר בבלעם... ואמר לו הקדוש ברוך הוא לכתוב גם האל\"ף ושוב אמר לו משה מחמת רוב ענוה שלא יכתבנה אלא קטנה יותר משאר אלפי\"ן שבתורה וכתבה קטנה\".",
+                    "בעל תוספת ברכה מקשה כמה קושיות על פירושו זה של בעל הטורים. אחת מהן, שבכמה מקומות בתורה עוד קודם לחומש ויקרא נאמר \"ויקרא אל משה\" ומדוע שם לא כתב משה רבינו א' זעירא? ורצה לבאר הסבר שונה ומיוחד: \"ואמנם אם לרמזים אפשר לתת רמז יפה לאלף זעירא כאן עפ\"י מה שכתב הש\"ך ביו\"ד סימן רמ\"ה שמתחילים ללמוד לקטנים בספר ויקרא שאמר הקב\"ה יבאו טהורים ויתעסקו בטהורים ועל זה בא הרמז מאל\"ף זעירא... כי נמצא במדרש רבי תנחומא פרשה צו: אמר רבי אסיא למה התינוקות של בית רבן מתחילין ללמוד בספר ויקרא? מפני שכל הקרבנות כתובים בו ומפני שהם טהורים עד עכשיו ואין יודעים טעם וחטא ועון, לפיכך אמר הקב\"ה שיהיו מתחילין תחלה בסדר הקרבנות – יבאו טהורים ויתעסקו במעשה טהורים, ואני מעלה עליהם כאלו הם עומדים ומקריבים לפני הקרבנות, ולהודיעך שעתה אחר שחרב ביהמ\"ק ואין קרבן נוהג, לולי התינוקות שקורין בסדר הקרבנות לא היה העולם קיים\".",
+                    "עומד בעל תוספת ברכה (ששנים רבות אבא שיח' מביא מתורתו) על זכותם של הקטנים העוסקים בקרבנות, טהורים שאין בהם חטא העוסקים במעשה טהורים והם שמקיימים את העולם לאחר שחרב בית המקדש. דבר זה מזכיר לנו את המן שמצא את מרדכי יושב עם תינוקות של בית רבן ולומד ענייני מנחת העומר, ואמר לו: \"אתא מלי קומצי קמחא דידכו, ודחי עשרה אלפי ככרי כספא דידי\" (מגילה ט\"ז, א)."
+                ]
+            },
+            {
+                id: "18e88f2f8f748f4b",
+                chumash: "ויקרא",
+                parasha: "צו",
+                year: "תשפ״ד",
+                dateISO: "2024-03-29",
+                dateDisplay: "י״ט באדר ב׳ תשפ״ד (29.03.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "זירוז מיד ולדורות – צו את אהרן כתיקון לקרירותו של עמלק והמן",
+                verse: "״צַו אֶת אַהֲרֹן וְאֶת בָּנָיו לֵאמֹר זֹאת תּוֹרַת הָעֹלָה...״ (ויקרא ו׳, ב׳)",
+                summary: "שלושת מרכיבי הציווי לפי המלבי״ם והרב זוין (זריזות, תכיפות ותדירות), וההקבלה בין המאבק בקרירות של עמלק והמן לבין התלהבות המצוות.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת צו תשפ\"ד. \"צו את אהרן ואת בניו לאמר\" וברש\"י: אין צו אלא זירוז מיד ולדורות. המלבי\"ם מסביר שלשון ציווי כוללת בתוכה שלושה עניינים: זריזות, תכיפות (כלומר ביצוע באופן מיידי) ותדירות.",
+                    "אומר על כך הרב זוין: \"הזריזות היא העירנות, החיות, ההיפך מהעצלות והשינה. מצוות ומעשים טובים צריכים להיעשות מתוך התעוררות וזריזות וחיות ולא כלאחר יד ומצות אנשים מלומדה. וזה היה הקטרוג של המן: 'ישנו עם אחד' – כלומר ישנו (מלשון שינה). העם היה בתרדימה. ובגמרא: ישנו מן המצוות. כלומר לא שלא קיימו אלא כאילו קיימו מתוך שינה, בלי רגש ובלי חיות. וזה היה עמלק: 'אשר קרך בדרך' שהכניס קרירות ועצלות... ומכיוון שלשון ציווי מורה על זריזות לכן בין בהמן ובין במרדכי כתוב ציווי: 'ויכתב ככל אשר ציווה המן', 'ויכתב ככל אשר ציווה מרדכי'. המן קטרג על חוסר הזריזות ומרדכי הכניס את הזריזות וההתעוררות\".",
+                    "הציווי מורה גם על התכיפות: מיד, לא לדחות למחר מה שיש לעשות היום, וכך היה גם בציווי של המן וגם בציווי של מרדכי – בשניהם כתוב \"הרצים יצאו דחופים\". הציווי מורה גם על התדירות: ולדורות. לא ניתנו המצוות לפי שעה אלא כוחן בתמידותן: \"וימי הפורים האלה לא יעברו מתוך היהודים וזכרם לא יסוף מזרעם\".",
+                    "כשם שלאהרן נאמר \"צו\", כך לכל ישראל – \"ואתם תהיו לי ממלכת כהנים\" – ניתנו המצוות בכח של זירוז מיד ולדורות. שבת שלום, סבא."
+                ]
+            },
+            {
+                id: "18eacacd2868cc23",
+                chumash: "ויקרא",
+                parasha: "שמיני",
+                year: "תשפ״ד",
+                dateISO: "2024-04-05",
+                dateDisplay: "כ״ו באדר ב׳ תשפ״ד (05.04.2024)",
+                sender: "ירון (מתוך קטע המסומן בעיפרון בחומש של סבא שאול)",
+                title: "הסרת יצר הרע של עבודה שאינה על פי גבולי התורה – 'העמק דבר'",
+                verse: "״וַיֹּאמֶר מֹשֶׁה זֶה הַדָּבָר אֲשֶׁר צִוָּה ה' תַּעֲשׂוּ וְיֵרָא אֲלֵיכֶם כְּבוֹד ה'״ (ויקרא ט׳, ו׳)",
+                summary: "פירוש הנצי״ב מוולוז׳ין המסומן בעיפרון בחומש של סבא שאול על הסכנה שבתשוקה דתית הפורצת את גבולי ההלכה, ודברי הרב קוק על כוח הקריאה אל ה'.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת שמיני תשפ\"ד. \"ויאמר משה זה הדבר אשר ציוה ה' תעשו וירא אליכם כבוד ה'\". אומר הנצי\"ב בפירושו 'העמק דבר' על אתר (בחומש של סבא יש כמה קטעים המסומנים כאן בעיפרון): \"זה הפסוק אומר דרשני, שהרי כבר עשו מה שעליהם והביאו הכל אל פני אוהל מועד ומה להם לעשות עוד?\" כלומר שואל הנצי\"ב מדוע יש כאן תנאי נוסף בדרך להשראת השכינה, הרי ישראל עשו לכאורה את כל הדרוש?",
+                    "ממשיך הנצי\"ב: \"ודרשו חז\"ל בתורת כהנים: אמר להם משה לישראל אותו יצר הרע העבירו מלבכם, ותהיו כלכם ביראה אחת ובעבודה אחת לשרת לפני המקום\". וכאן מסביר בעל העמק דבר: \"והענין, דכבר היה בימי משה כתות בישראל שהיו להוטים אחר אהבת ה' אבל לא ע\"י גבולים שהגבילה תורה... בשביל זה אמר משה לישראל כי לא כן הדבר, אלא אותו יצר הרע העבירו מלבכם, שגם זה התשוקה אף על גב שהיא להשיג אהבת ה' בקדושה, מכל מקום אם היא לא בדרך שעלה על רצונו ית', אינו אלא דרך יצה\"ר להטעות ולהתעות... ואמר להם משה טעם לדבר ותהיו כולכם ביראה אחת ובעצה אחת לשרת לפני המקום, פי' אם תשימו דעתכם לדרך התורה תלכו הכל בדרך אחד ובעצה אחת, משא\"כ אם נבקש אהבת ה' שלא בדרך התורה, ותהי' תורת כל אחד בידו ויהיו אגודות אגודות בעבודתם, הוא נגד רצון ה' וכבודו ית'\".",
+                    "אומר לנו הנצי\"ב שהדרך להשראת השכינה היא דרך קיום מה שציווה ה', ואפילו כשיש רצון ותשוקה, יש להתקרב לה' דרך המצוות שציוונו ולא שתהיה \"תורת כל אחד בליבו\". וב\"אדון עולם\" כתוב: \"מנת כוסי ביום אקרא\" – מסביר הרב קוק (עולת ראיה) שיכולת התפילה שלנו מזומנת ומוכנה כמו כוס של משקה המוכנה לכל אחד בלא הצטרכות לשום הכנה, רק דבר אחד הוא מותנה – שהוא 'ביום אקרא'."
+                ]
+            },
+            {
+                id: "18ed1b4594a7ac7a",
+                chumash: "ויקרא",
+                parasha: "תזריע",
+                year: "תשפ״ד",
+                dateISO: "2024-04-12",
+                dateDisplay: "ד׳ בניסן תשפ״ד (12.04.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "סוף מעשה במחשבה תחילה – הקדמת עולה למקראה וחטאת למעשה",
+                verse: "״וְאִם לֹא תִמְצָא יָדָהּ דֵּי שֶׂה וְלָקְחָה... אֶחָד לְעֹלָה וְאֶחָד לְחַטָּאת״ (ויקרא י״ב, ח׳)",
+                summary: "ביאורו של הרב זוין לדברי רש״י על סדר הקרבת קרבנות היולדת: במחשבה קודמת התכלית (העולה – ההתעלות בקדושה), ובמעשה בפועל קודמת ההיטהרות (החטאת – סור מרע).",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת תזריע תשפ\"ד. \"וְאִם-לֹא תִמְצָא יָדָהּ דֵּי שֶׂה וְלָקְחָה... אֶחָד לְעֹלָה וְאֶחָד לְחַטָּאת\" (י\"ב, ח) וברש\"י: \"לא הקדימה הכתוב אלא למקראה, אבל הקרבת חטאת קודם לעולה\".",
+                    "הרב זוין מסביר מה פשר הקדימויות הסותרות, למה יש קדימות למעשה ויש קדימות הפוכה \"למקראה\": \"'סוף מעשה במחשבה תחילה'. במעשה, באה המטרה התכלית בסוף, ובמחשבה היא קודמת. אדם בונה בית, הרי במעשה כל זמן שלא נשלם הבית כולו עדיין לא הגיע למטרה הסופית. נדבך אחר נדבך ושלב אחר שלב, ואחר כל תהליך הבנייה הוא בא לתכליתו. אבל כשעלה במחשבתו של האדם שהוא זקוק לבית, הרי שהבית השלם והגמור הוא שעלה בדעתו, אלא שאחר כך הוא מסדר לו תכנית של פרטים קודמים ומאוחרים.",
+                    "השאיפה במחשבה היא תמיד גדולה יותר מהביצוע המעשי. המחשבה מרקיעה שחקים, והמעשה מוגבל בכוחות הביצוע. העולה והחטאת אין תפקידיהם שווים. החטאת באה לכפרה על חטא, דבר שזדונו כרת שגגתו חטאת. העולה באה לריצוי, ל\"דורון\". נמצא שעולה תעודתה בחיוב והחטאת בשלילת הרע. במעשה בפועל מוכרחים להיות קודם סור מרע – לעשות תשובה על החטאים, ואחר כך להתעלות בקדושה. המחשבה משווה לנגד עיניה מיד את התכלית המקווה. סוף מעשה במחשבה תחילה. ולכן \"למקראה\" – באמירה ומחשבה העולה קודמת, שהיא התכלית, ובהקרבה בפועל במעשה, החטאת קודמת ואחריה העולה\".",
+                    "בפתחו של חודש הגאולה נצפה לתשועה גדולה, וכימי צאתנו ממצרים יראנו נפלאות במהרה בימינו אמן."
+                ]
+            },
+            {
+                id: "18f3e2c6d5a36206",
+                chumash: "ויקרא",
+                parasha: "אחרי מות",
+                year: "תשפ״ד",
+                dateISO: "2024-05-03",
+                dateDisplay: "כ״ה בניסן תשפ״ד (03.05.2024)",
+                sender: "סבא שאול (מעובד מדברים שסבא כתב בתשע״ז)",
+                title: "'וחי בהם' בעולם הזה ובעולם הבא – מחלוקת רש״י והרמב״ן",
+                verse: "״וּשְׁמַרְתֶּם אֶת חֻקֹּתַי וְאֶת מִשְׁפָּטַי אֲשֶׁר יַעֲשֶׂה אֹתָם הָאָדָם וָחַי בָּהֶם״ (ויקרא י״ח, ה׳)",
+                summary: "רש״י רואה ב'וחי בהם' הבטחה לחיי העולם הבא, ואילו הרמב״ן מפרש כפשוטו: המצוות והמשפטים נועדו ליישוב המדינות, לחיים תקינים ולברכה גם בעולם הזה.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת אחרי מות תשפ\"ד. \"את משפטי תעשו ואת חקתי תשמרו ללכת בהם אני ה' א-לקיכם. ושמרתם את חקתי ואת מצותי אשר יעשה אתם האדם וחי בהם אני ה' א-לקיכם\" (ויקרא יח, ד-ה).",
+                    "רש\"י: \"וחי בהם... לעולם הבא, שאם תאמר בעולם הזה והרי סופו הוא מת\". יוצא שרש\"י – בעקבות הספרא – רואה כאן רמז לעולם הבא; לעומת זאת, לפי הרמב\"ן התורה עוסקת בקשר שבין קיום המצוות ובין הקביעה 'וחי בהם' בעולמנו.",
+                    "רמב\"ן: \"ועל דרך הפשט, 'משפטי' כמשמען, הדינין האמורים בפרשת ואלה המשפטים ובכל התורה, ולכך יאמר אשר יעשה אותם האדם וחי בהם – כי הדינים נתנו לחיי האדם בישוב המדינות ושלום האדם, ושלא יזיק איש את רעהו ולא ימיתנו... ורבותינו אמרו (יומא פה ב), וחי בהם, ולא שימות בהם, ללמד על פקוח נפש שדוחה את השבת והמצות\". מכאן שלפי הרמב\"ן המשפטים נועדו להבטיח תנאי חיים תקינים בחברה האנושית.",
+                    "בהמשך דבריו, הרמב\"ן מדבר על קיום המצוות מתוך יראה או מתוך אהבה: \"וכן אותם אשר הם מתעסקין במצות על מנת לזכות בהן לעולם הבא שהם העובדים מיראה, זוכים בכוונתם להנצל ממשפטי הרשעים, ונפשם בטוב תלין. והעוסקין במצות מאהבה כדין וכראוי, עם עסקי העולם הזה... יזכו בעולם הזה לחיים טובים כמנהג העולם, ולחיי העולם הבא זכותם שלמה שם\"."
+                ]
+            },
+            {
+                id: "18f623f0e693df78",
+                chumash: "ויקרא",
+                parasha: "קדושים",
+                year: "תשפ״ד",
+                dateISO: "2024-05-10",
+                dateDisplay: "ב׳ באייר תשפ״ד (10.05.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "קדושים תהיו – הכתיב החסר והמלא ולא להיות 'נבל ברשות התורה'",
+                verse: "״דַּבֵּר אֶל כָּל עֲדַת בְּנֵי יִשְׂרָאֵל וְאָמַרְתָּ אֲלֵהֶם קְדֹשִׁים תִּהְיוּ כִּי קָדוֹשׁ אֲנִי ה' אֱלֹהֵיכֶם״ (ויקרא י״ט, ב׳)",
+                summary: "ההבדל בכתיב בין קדושת ישראל ('קדשים' חסר) לקדושת ה' ('קדוש' מלא), והקשר שבין ציווי 'קדושים תהיו' לבין 'ועשית הישר והטוב' בדברי הרמב״ן.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת קדושים תשפ\"ד. \"דַּבֵּר אֶל-כָּל-עֲדַת בְּנֵי-יִשְׂרָאֵל וְאָמַרְתָּ אֲלֵהֶם קְדֹשִׁים תִּהְיוּ כִּי קָדוֹשׁ אֲנִי ה' א-לוקיכם\". אבא שיח' רגיל לומר שבפס' זה רואים בצורה בולטת שקדושתנו, קדושתם של ישראל, אינה כמובן כקדושתו של הקב\"ה ולכן הציווי אלינו הוא \"קדשים תהיו\" בכתיב חסר ובהנמקה \"כי קדוש אני\" הכתיב הוא מלא.",
+                    "ומה טיבה של הקדושה עליה נצטווינו? הרמב\"ן מביא את רש\"י: \"קדושים תהיו – 'הוו פרושים מן העריות ומן העבירה, שכל מקום שאתה מוצא גדר ערוה אתה מוצא קדושה', לשון רש\"י\". ובהמשך הוא חולק ומרחיב את העניינים הכלולים כאן בקדושה: \"ולפי דעתי אין הפרישות הזו לפרוש מן העריות כדברי הרב... והענין כי התורה הזהירה בעריות ובמאכלים האסורים והתירה הביאה ואכילת הבשר והיין, א\"כ ימצא בעל התאוה מקום להיות שטוף ולהיות בסובאי יין בזוללי בשר למו, וידבר כרצונו בכל הנבלות, שלא הוזכר איסור זה בתורה, והנה יהיה נבל ברשות התורה\".",
+                    "הרמב\"ן אומר שכאן בציווי 'קדושים תהיו' התורה רומזת בקצרה להנהגה חשובה ביותר: יכול אדם להיות ברשות התורה – מקיים את מצוותיה – ואף על פי כן הוא נבל. מדוע התורה לא פירטה אלא השאירה זאת בצורה כללית? יתכן שניתן ללמוד זאת מדברי הרמב\"ן במקום נוסף (דברים פרק ו פסוק יח – \"ועשית הישר והטוב\"): \"וזה ענין גדול, לפי שאי אפשר להזכיר בתורה כל הנהגות האדם עם שכניו ורעיו וכל משאו ומתנו ותקוני הישוב והמדינות כלם... חזר לומר בדרך כלל שיעשה הטוב והישר בכל דבר, עד שיכנס בזה הפשרה ולפנים משורת הדין... עד שיקרא בכל ענין תם וישר\"."
+                ]
+            },
+            {
+                id: "18f870f2f0f3996f",
+                chumash: "ויקרא",
+                parasha: "אמור",
+                year: "תשפ״ד",
+                dateISO: "2024-05-17",
+                dateDisplay: "ט׳ באייר תשפ״ד (17.05.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "ספירת העומר – מן החירות הפיסית אל החירות הרוחנית (הרש״ר הירש והרב קוק)",
+                verse: "״וּסְפַרְתֶּם לָכֶם מִמָּחֳרַת הַשַּׁבָּת מִיּוֹם הֲבִיאֲכֶם אֶת עֹמֶר הַתְּנוּפָה״ (ויקרא כ״ג, ט״ו)",
+                summary: "מדוע סופרים מפסח (קרבן שעורים – מאכל בהמה) לשבועות (שתי הלחם מחיטים – מאכל אדם)? העצמאות הלאומית כתחילת הדרך אל הייעוד הרוחני.",
+                content: [
+                    "ערב שבת קדש פרשת אמור תשפ\"ד. \"וספרתם לכם ממחרת השבת מיום הביאכם את עמר התנופה\" (כ\"ג, ט\"ו). סופרים אנו את הימים ממחרת הפסח ועד שבועות. מה עניינה של ספירה זו? יש שהדגישו את המעבר שבין הקרבת העומר מהשעורים בט\"ז בניסן להקרבת שתי הלחם מהחיטים בשבועות, ויש שהדגישו את המעבר וההתקדמות מחג הפסח לחג השבועות.",
+                    "הרש\"ר הירש הסביר כך את הספירה: \"'ממחרת השבת': כבר חגותם את חג חירותכם; וכבר זכרתם לפני ה' את העצמאות, שזכיתם בה בשבתכם בארצכם ובאכלכם מלחם הארץ; נמצא, שכבר הגעתם אל החירות ואל רווחת העצמאות, המהווים בדרך כלל את מטרת כל השאיפות הלאומיות. ואילו אתם תראו עצמכם רק בראשית ייעודכם הלאומי; ותחלו עתה למנות לקראת השגת מטרה אחרת... נצטווינו אפוא לספור מיום החירות ורווחת העצמאות הלאומית; ולמדנו מכך דרך כלל, שהישגים אלה אינם התכלית, אלא רק התחלת השאיפות הלאומיות. העומר בא מקמח שעורים. אולם השעורה איננה מזון עיקרי של האדם, אלא היא מאכל בהמה (עי' סוטה יד ע\"א). נמצא, שהעומר ייצג רק את הקיום הפיסי, המובטח על-ידי קניין האדמה. רק ביום החמישים, לאחר חתירה אל 'טהרת' האדם וחירותו – תוך כדי ספירת ימים ושבועות – רק ביום הזיכרון של מתן תורה ייגש ישראל אל מזבח ה', ובידו לחם חיטים המיועד לאדם\".",
+                    "ובדברי הרב קוק מצאנו בדומה לזה (מתוך עולת ראיה ב' לחג השבועות): ובתווך אנו נמצאים, בין הפסח לבין העצרת, בין השעורה לבין החיטה. אמנם \"קול התור נשמע בארצנו\", וחג העצמאות שברש\"ר הירש הלא הוא חג הפסח, התרחב לו וקבע לו יום בפני עצמו שציינו השבוע – יום העצמאות – אבל יחד עם זה אנחנו עדיין \"דחופים וסחופים\" כלשון המדרש, נלחמים על תקומתנו ועל עצמאותנו. נקווה ונתפלל לשכלול עצמאותנו הלאומית והרוחנית."
+                ]
+            },
+            {
+                id: "18fa9bd4bc2abc21",
+                chumash: "ויקרא",
+                parasha: "בהר",
+                year: "תשפ״ד",
+                dateISO: "2024-05-24",
+                dateDisplay: "ט״ז באייר תשפ״ד (24.05.2024)",
+                sender: "סבא שאול (לע״נ סבתא רבקה סולברג ז״ל)",
+                title: "שמירת השבת ומורא המקדש – מקדשים בזמן ובמקום (לע״נ סבתא רבקה ז״ל)",
+                verse: "״אֶת שַׁבְּתֹתַי תִּשְׁמֹרוּ וּמִקְדָּשִׁי תִּירָאוּ אֲנִי ה'״ (ויקרא כ״ו, ב׳)",
+                summary: "דבר תורה לעילוי נשמת סבתא מרת רבקה סולברג ז״ל: הקשר בין פרשיות השמיטה והעבדות לבין שמירת שבת בגלות (בכור שור וספורנו), וראיית הרש״ר הירש.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת בהר תשפ\"ד. יהיו הדברים לע\"נ סבתא מרת רבקה סולברג ז\"ל שיום פטירתה יחול ביום ראשון ל\"ג בעומר.",
+                    "בסוף פרשתנו העוסקת במצוות השמיטה והיובל ובדיני מכירת קרקעות, מופיעים שני פסוקים שלכאורה אינם קשורים לכל מה שנאמר קודם: \"לא תעשו לכם אלילים ופסל ומצבה לא תקימו לכם ואבן משכית לא תתנו בארצכם להשתחוות עליה כי אני ה' א-לוקיכם. את שבתותי תשמורו ומקדשי תיראו אני ה'\".",
+                    "בעל בכור שור כורך את הציוויים הללו עם מה שנאמר קודם לכן – המוכר עצמו לעבד מפאת דוחקו הכלכלי: \"שלא תמכור עצמך לגוי שהוא יצוה לך לעשות מלאכה בשבת. ומקדשי תיראו – קדושתי תיראו ולא תמכור עצמך לגוי שתחלל שם שמים... וגם לעבוד ע\"ז\". הספורנו מסביר בהקשר רחב יותר שהפסוקים עוסקים במציאות של גלות: \"'את שבתותי תשמורו' – אף בימי השעבוד אף על פי שהמנוחה בהם זכר לחירות; 'ומקדשי תיראו' – המקומות המקודשים בגלות והם בתי כנסיות ובתי מדרשות אף על פי שחרב בית המקדש כאמרו 'ואהי להם למקדש מעט'\".",
+                    "הרש\"ר הירש רואה בפסוק האחרון כעין סיכום וקריאת כיוון לכל האמור מראש הספר ועד כאן: \"אין די בהשתחווייה, שהיא אות להתמסרות גמורה לתורה; אלא נצטווינו על יראה: 'ומקדשי תיראו'. מורא מקדש ילווה אותנו בכל מקום; הוא יזכיר לנו בכל זמן ובכל מקום לקיים את התורה היוצאת מן המקדש... מקדש ה' הוא מקדש במקום, והוא בא לקדש את חיינו המוסריים; ואילו שבתות ה' הן מקדשים בזמן, והן מעצבות את חיינו הרוחניים והחברתיים. בשני המקדשים האלה מסתכמות כל המצוות, שנאמרו מראש הספר ועד כאן\"."
+                ]
+            },
+            {
+                id: "18fce975c89636b2",
+                chumash: "ויקרא",
+                parasha: "בחוקותי",
+                year: "תשפ״ד",
+                dateISO: "2024-05-31",
+                dateDisplay: "כ״ג באייר תשפ״ד (31.05.2024)",
+                sender: "סבא שאול (מעובד מתוך 'היין המשומר' מתשע״ח)",
+                title: "'ושממו עליה אויביכם' – בשורת הגאולה של הרמב״ן וירושלים בבניינה",
+                verse: "״וַהֲשִׁמֹּתִי אֲנִי אֶת הָאָרֶץ וְשָׁמְמוּ עָלֶיהָ אֹיְבֵיכֶם הַיֹּשְׁבִים בָּהּ״ (ויקרא כ״ו, ל״ב)",
+                summary: "השממה של ארץ ישראל כמידה טובה וכהבטחה לכך שאף אומה לא תצליח להיאחז בה מלבד ישראל (רמב״ן), ואיגרת הרמב״ן מירושלים לקראת יום ירושלים.",
+                content: [
+                    "ב\"ה ערב שבת קדש פ' בחוקתי תשפ\"ד (מעובד מתוך \"היין המשומר\" – משנת תשע\"ח בעריכה מחודשת והוספות מהשנה). \"והשמותי אני את הארץ ושממו עליה אויביכם היושבים בה ואתכם אזרה בגויים\" (ויקרא כ\"ו ל\"ב-ל\"ג).",
+                    "רש\"י: \"זו מדה טובה לישראל שלא ימצאו האויבים נחת רוח בארצם, שתהא שוממה מיושביה\". ובמלבי\"ם: \"כשתגלו ממנה לא תשאר בכחה ובברכתה, רק תהי' שממה עד שהאומות שיתישבו בה לא ימצאו בה נחת רוח\".",
+                    "התקוה לישועת ה' וברכת הארץ מוצאת ביטוי מרגש במיוחד בדבריו של הרמב\"ן: \"מה שאמרו עליה 'ושממו עליה אויביכם' היא בשורה טובה מבשרת בכל הגליות שאין ארצנו מקבלת אויבינו. וגם זו ראיה גדולה והבטחה לנו כי לא תמצא בכל הישוב ארץ אשר היא טובה ורחבה ואשר היתה נושבת מעולם והיא חריבה כמוה, כי מאז יצאנו ממנה לא קיבלה אומה ולשון וכולם משתדלים להושיבה ואין לאל ידם\".",
+                    "לאחר שהרמב\"ן זכה לעלות ארצה ולהגיע לירושלים הוא שלח איגרת מפורסמת לבנו, וכך הוא כותב: \"ומה אגיד לכם בענין הארץ, כי רבה העזובה וגדול השממון... ירושלים יותר חריבה מן הכל... ויושביה קרוב לאלפים ואין ישראל בתוכה רק שני אחים צבעים קונים הצביעה מן המושל ואליהם יאספו עד מנין מתפללים בביתם בשבתות... ומי שזיכנו לראות ירושלים בחורבנה הוא יזכנו לראות בבנינה ותיקונה בשוב אליה כבוד השכינה\". יפים הדברים במיוחד כשאנו נמצאים בשבת שלפני יום שחרור ירושלים. השבוע קראתי עם סבא דברים שכתב ר' ברוך דובדבני ז\"ל על ירושלים, שהזכיר את הרמב\"ן הזה וכתב שכיום יש בירושלים 350,000 איש, ובינתיים המספר מתקרב למיליון תושבים. נזכה בע\"ה \"לראות בבנינה ותיקונה בשוב אליה כבוד השכינה\"."
+                ]
+            },
+            {
+                id: "18ff25bf848e2aa2",
+                chumash: "במדבר",
+                parasha: "במדבר",
+                year: "תשפ״ד",
+                dateISO: "2024-06-07",
+                dateDisplay: "א׳ בסיוון תשפ״ד (07.06.2024)",
+                sender: "סבא שאול (מתוך לימוד עם סבא בספר 'לתורה ולמועדים')",
+                title: "איך המדבר מתאחד עם חג הביכורים? – הרב זוין והראי״ה קוק",
+                verse: "״בַּחֹדֶשׁ הַשְּׁלִישִׁי לְצֵאת בְּנֵי יִשְׂרָאֵל מֵאֶרֶץ מִצְרָיִם בַּיּוֹם הַזֶּה בָּאוּ מִדְבַּר סִינָי״ (שמות י״ט, א׳ / במדבר א׳)",
+                summary: "על הסמיכות הקבועה בין פרשת במדבר לשבועות: העולם בלא תורה הוא מדבר אף אם הוא גן עדן, והעולם עם התורה אף אם הוא מדבר נהפך לגן עדן.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת במדבר תשפ\"ד. הרב זוין בספרו \"לתורה ולמועדים\" עומד על הקשר שבין פרשת במדבר לחג השבועות. פרשת במדבר נקראת כל שנה בסמיכות לחג מתן תורה. כך בשולחן ערוך: \"מנו (מניין – פרשת במדבר העוסקת במניין בני ישראל) ועצרו (כינוי לשבועות – עצרת)\".",
+                    "אולם אם מתבוננים יותר בעניינו של חג השבועות כחג הביכורים וכחג שבו מביאים קרבן מהחיטה החדשה – קרבן שתי הלחם, הרי עולה שאלה גדולה: איך המדבר מתאים לביכורים המציינים צמיחה ופריחה? איך מתאחדים שני ההפכים?",
+                    "וכאן כותב הרב זוין כך: \"העולם בלא התורה הוא מדבר והעולם עם התורה הוא ביכורים. יתר על כן: העולם בלא התורה אף אם הוא גן עדן נהפך להיות מדבר, והעולם עם התורה אף אם הוא מדבר נהפך להיות גן עדן. האדם הראשון היה בגן עדן, אבל בלי התורה הרי כבר תיכף ביום הראשון נהפך למדבר ואח קם על אחיו ורצחו נפש... וכן הלאה והלאה עד דור המבול ועד דור הפלגה... ועם שלם לוקח לעבדים. ואז כשהגיע העולם לשיא הרשעות, הרעים הרעם, והתורה ניתנה. התורה היא הכח שיכול להפוך את המדבר לעדן ואת החורבן והשיממון לביכורים וחיים\".",
+                    "נסיים בדברי הרב קוק (מאמרי הראי\"ה): \"ובכל שנה כשהיום הקדוש הזה יום מתן תורה חוזר ומופיע על ישראל, גדולת עולם מתחדשת בקרבנו, ונכונים הננו להקשיב עוד הפעם את קול ה' בכח קול ה' בהדר כאשר שמענו אז במדבר לפני בואנו לארץ... חדל ישראל מהיות עוד שוגה במחלוקת ובפרודים... וברוחך הגדול והקדוש הזה תחוג בעוז את היום האדיר והנאור הזה את יום חג השבועות חג הביכורים זמן מתן תורתנו\"."
+                ]
+            },
+            {
+                id: "19720716ba1988d4",
+                chumash: "במדבר",
+                parasha: "במדבר",
+                year: "תשפ״ה",
+                dateISO: "2025-05-30",
+                dateDisplay: "ג׳ בסיוון תשפ״ה (30.05.2025)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "תורה ניתנה בחינם ונקנית בהפקר כמדבר – עיון בדברי ה'שפת אמת'",
+                verse: "״וַיְדַבֵּר ה' אֶל מֹשֶׁה בְּמִדְבַּר סִינַי...״ (במדבר א׳, א׳)",
+                summary: "יישוב הסתירה במדרש בין תורה שניתנה בחינם לבין הצורך 'לקנות' אותה בענווה כמדבר, והקשר שבין השבת למתן תורה לפי השפת אמת.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת במדבר התשפ\"ה. \"וידבר ה' אל משה במדבר סיני...\" אומר המדרש (במדבר רבה א, ז): \"למה במדבר סיני? מכאן שנו חכמים בג' דברים ניתנה התורה: באש, ובמים, ובמדבר... ולמה ניתנה בג' דברים הללו? אלא מה אלו חנם לכל באי העולם כך דברי תורה חנם הם... ד\"א 'וידבר ה' אל משה במדבר סיני' – אלא כל מי שאינו עושה עצמו כמדבר הפקר אינו יכול לקנות את החכמה והתורה לכך נאמר במדבר סיני\".",
+                    "והדברים נראים כסותרים: מדוע יש צורך לקנות את התורה הלא כרגע נאמר שהתורה ניתנה בחינם? עמד על כך השפת אמת (במדבר תר\"מ) והוא משיב: \"אכן ודאי תורה חנם, מי שירצה יכול ללמוד בה. אבל לקנות התורה, היינו להיות לו דביקות בעצם התורה, כמ\"ש זקן שקנה חכמה – היינו שיש לחכמה דירה וקן בלבו... להיות דברי תורה נבלעין בדמו. וזה אינו יכול להיות רק ע\"י שעושה עצמו הפקר\".",
+                    "בשנה אחרת מופיע פירוש נוסף של השפת אמת (במדבר תרנ\"ח): \"ומדבר – הוא להיות נמשך אחר השי\"ת בכולו... להיות בטל אל הנהגת השי\"ת ותורתו. וזהו עיקר הכנה אל התורה והוא בחינת השבת שניתן קודם מתן תורה... שע\"י השביתה וביטול כל המלאכות זוכין לתורה\". ביום השבת אנחנו מסירים במעט את כבלינו הארציים לטובת עיסוק ברוח, ויתכן שאדם \"יעשה שבת\" גם בימות החול אם יצליח לשמור על \"מבצרים רוחניים\" – פרקי זמן בהם יצליח לשקוע ברוח, שהרי בתורה יש \"שכל של סיני\" כלשון הרב סולוביצ'יק."
+                ]
+            },
+            {
+                id: "197d4d977988c897",
+                chumash: "במדבר",
+                parasha: "חוקת",
+                year: "תשפ״ה",
+                dateISO: "2025-07-04",
+                dateDisplay: "ח׳ בתמוז תשפ״ה (04.07.2025)",
+                sender: "סבא שאול (נשלח ע״י ירון, לע״נ אורי ע״ה)",
+                title: "מהו 'ספר מלחמות ה''? – מדרש אגדה, רמב״ן, מושב זקנים ואור החיים",
+                verse: "״עַל כֵּן יֵאָמַר בְּסֵפֶר מִלְחֲמֹת ה' אֶת וָהֵב בְּסוּפָה וְאֶת הַנְּחָלִים אַרְנוֹן״ (במדבר כ״א, י״ד)",
+                summary: "סקירת הגישות השונות בפרשנים לפשר 'ספר מלחמות ה'' – מספר שמות, מספר דברים, ספר היסטורי קדום ועד לספר השמימי של האור החיים הקדוש.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת חוקת תשפ\"ה – יהיו הדברים לע\"נ אורי ע\"ה. \"עַל-כֵּן יֵאָמַר בְּסֵפֶר מִלְחֲמֹת ה' אֶת-וָהֵב בְּסוּפָה וְאֶת-הַנְּחָלִים אַרְנוֹן\" (כ\"א, י\"ד). מהו ספר מלחמות ה'? מצינו במפרשים גישות רבות ושונות:",
+                    "בתרגום יונתן נראה שמדובר על התורה באופן כללי: \"בְּסֵפֶר אוֹרַיְיתָא דְתַמָן כְּתִיבִין קְרָבַיָא דַה'\". במדרש אגדה (בובר) הסביר שמדובר בחומש שמות, שם נרמזה כבר בשירת הים מפלתם של האמוריים בנחל ארנון. בפירוש מושב זקנים (בעלי התוספות) הסביר שמדובר דווקא בחומש דברים, שיש בו מלחמות וניצחונות של ישראל.",
+                    "יש מהמפרשים שהסבירו שמדובר בספרים שנכתבו ע\"י אנשים באותו הדור, כך ברמב\"ן: \"ודרך הפשט בספר מלחמות ה', שהיו בדורות ההם אנשים חכמים כותבים ספר המלחמות הגדולות, כי כן בכל הדורות, ובעלי הספרים היו נקראים מושלים, שנושאים בהם משלים ומליצות, והנצחונות הנפלאים בעיניהם מיחסים המלחמות ההם לה' כי לו המה באמת\".",
+                    "בעל 'אור החיים' מסביר שהספר הוא ספר שמימי: \"בספר אשר לפני ה' בענין המלחמות אשר ינחיל לעמים ומוציא מזה ונותן לזה... ושם בספר יאמר על גבול זה שיתנו לישראל בסופה, ולא בזמן ההוא אלא בבא משיחנו אז ינחילנו ה' מואב וגבולו\". נתפלל שנזכה במהרה להתגשמות הכתוב בספר מלחמות ה' כפירוש האור החיים בביאת המשיח במהרה בימינו אמן."
+                ]
+            },
+            {
+                id: "18978751b304cefd",
+                chumash: "דברים",
+                parasha: "דברים",
+                year: "תשפ״ג",
+                dateISO: "2023-07-21",
+                dateDisplay: "ג׳ באב תשפ״ג (21.07.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "'טורחכם ומשאכם וריבכם' – שלושת הכיוונים של היחס לזולת (הרב זוין)",
+                verse: "״אֵיכָה אֶשָּׂא לְבַדִּי טָרְחֲכֶם וּמַשַּׂאֲכֶם וְרִיבְכֶם״ (דברים א׳, י״ב)",
+                summary: "על שלושת המישורים שבהם פגמו ישראל – בין אדם למקום, למנהיג ולחברו – וכיצד תיקונם הופך את 'איכה ישבה בדד' ל'איכה אשא לבדי'.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת דברים שבת חזון תשפ\"ג. \"איכה אשא לבדי טורחכם ומשאכם וריבכם\".",
+                    "הרב זוין בספרו \"לתורה ולמועדים\" כותב כך: \"היחס של אדם מישראל לזולתו צריך שיהיה זך וישר בשלושה כיוונים – בינו למקום, בינו למורה ומנהיג ובינו לחבירו. משה רבינו הוכיח את ישראל שפגמו בשלושה אלה.",
+                    "טרחכם: הפגם בינם למקום – 'ולא אותי קראת יעקב כי יגעת בי ישראל', וכבר פירשו שמי שעובד את ה' באהבה וברצון אינו מרגיש עייפות וכבדות, 'עבדו את ה' בשמחה', ואם יגעת בי, אתה מרגיש עייפות – הרי זה סימן והוכחה שלא אותי קראת, שאתה לא מתכוון באמת אלי. ומשאכם: הוא הפגם בינם לבין מנהיג הדור – 'כאשר ישא האומן את היונק'. וכבר פירשו שהאומן כשרוצה להרים את היונק הוא צריך מקודם להתכופף אל היונק, אבל אין הכוונה שיישאר כפוף, אלא אחרי שהתכופף הוא מתיישר ומגביה את היונק אליו. מנהיג הדור אף הוא צריך בשביל לרומם את העם להתכופף בתחילה אל ההמון אבל לא שיישאר שם אלא שיגביה אחר כך את העם אליו. וריבכם: הוא הפגם בין איש לרעהו – מריבות וקטטות.",
+                    "על שלושה אלה רגזה הארץ בשעת החורבן... ומסיים הרב זוין במדרש: 'אילו זכיתם הייתם קוראים איכה אשא לבדי, עכשיו שלא זכיתם אתם קוראים איכה ישבה בדד'. שנזכה להתבשר בבשורות טובות, חודש טוב ומבורך ושבת שלום לנו ולכל ישראל. סבא."
+                ]
+            },
+            {
+                id: "198654cbea630288",
+                chumash: "דברים",
+                parasha: "דברים",
+                year: "תשפ״ה",
+                dateISO: "2025-08-01",
+                dateDisplay: "ז׳ באב תשפ״ה (01.08.2025)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "מקראות הנראים כהיסטוריה והן הן גופי תורה – כפתורים, סיחון והרי ארץ ישראל",
+                verse: "״וְהָעַוִּים הַיֹּשְׁבִים בַּחֲצֵרִים עַד עַזָּה כַּפְתֹּרִים הַיֹּצְאִים מִכַּפְתֹּר הִשְׁמִידֻם וַיֵּשְׁבוּ תַחְתָּם״ (דברים ב׳, כ״ג)",
+                summary: "דברי ריש לקיש בגמרא בחולין: כיצד כיבושי העמים הקדומים הכשירו את כיבוש הארץ מבחינה מוסרית ומשפטית, וחיבת האומות להרי ארץ ישראל.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת דברים תשפ\"ה. \"וְהָעַוִּים הַיֹּשְׁבִים בַּחֲצֵרִים עַד-עַזָּה כַּפְתֹּרִים הַיֹּצְאִים מִכַּפְתֹּר הִשְׁמִידֻם וַיֵּשְׁבוּ תַחְתָּם\" (דברים ב, כ\"ג). בתיאור המסע לארץ ישראל מופיעים מס' פסוקים בהם התורה מציינת כל מיני עמים שהיו ואינם. מה הצורך בכך?",
+                    "שאלה זו נשאלה כבר בגמרא בחולין (ס', ב): \"אמר ר\"ש בן לקיש: הרבה מקראות שראויין לשרוף והן הן גופי תורה, והעוים היושבים בחצרים עד עזה, מאי נפקא לן מינה?\" מתרצת הגמרא: \"מדאשבעיה אבימלך לאברהם אם תשקור לי ולניני ולנכדי, אמר הקדוש ברוך הוא ליתו כפתורים ליפקו מעוים דהיינו פלשתים, וליתו ישראל ליפקו מכפתורים\". מסבירה הגמרא שהפסוק שלנו נכתב כדי להסביר מדוע מותר היה לעם ישראל לכבוש את העם הנקרא \"כפתורים\" ואין כאן התנגשות עם השבועה שנשבע אברהם לפלישתים. וכך גם בכיבוש סיחון ממואב – \"עמון ומואב טיהרו בסיחון\".",
+                    "בהמשך הגמרא מובא פסוק נוסף מפרשתנו: \"צידונים יקראו לחרמון שריון והאמורי יקראו לו שניר\" (ג, ט). מסבירה הגמרא: \"תנא: שניר ושריון – מהרי ארץ ישראל, מלמד שכל אחד ואחד מאומות העולם הלך ובנה לו כרך גדול לעצמו, והעלה לו על שם הרי ארץ ישראל, ללמדך: שאפילו הרי ארץ ישראל חביבין על האומות העולם\".",
+                    "בעבר הכירו הגויים בשבחה של ארץ ישראל ולעתיד גם כן יבואו לירושלים לא כדי לתפוס שלטון אלא כדי לחלות את פני ה', כדברי זכריה הנביא: \"וּבָאוּ עַמִּים רַבִּים וְגוֹיִם עֲצוּמִים לְבַקֵּשׁ אֶת ה' צְבָאוֹת בִּירוּשָׁלָיִם\"."
+                ]
+            },
+            {
+                id: "1915b2068f6705db",
+                chumash: "דברים",
+                parasha: "ואתחנן",
+                year: "תשפ״ד",
+                dateISO: "2024-08-16",
+                dateDisplay: "י״ב באב תשפ״ד (16.08.2024)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "מהי התורה ששם משה לפני בני ישראל? – הבדלת ערי מקלט והכלי יקר",
+                verse: "״וְזֹאת הַתּוֹרָה אֲשֶׁר שָׂם מֹשֶׁה לִפְנֵי בְּנֵי יִשְׂרָאֵל״ (דברים ד׳, מ״ד)",
+                summary: "מדוע נסמך הפסוק שאנו אומרים בהגבהת ספר התורה לפרשת הבדלת ערי מקלט בעבר הירדן? על מעלתו של מי שמתחיל במצווה גם כשהקיום הוא חלקי.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת ואתחנן תשפ\"ד. בהגבהת ספר תורה אנו אומרים את הפסוק מפרשתנו: \"וזאת התורה אשר שם משה לפני בני ישראל\". נשאלת השאלה האם בכל זאת יש קשר בין פסוק זה ובין פרשת ערי מקלט המופיעה בשלושת הפסוקים שקדמו לפס' \"וזאת התורה\"?",
+                    "הכלי יקר הוסיף שיש חידוש בפרשייה זו של ערי מקלט. החידוש הוא שמשה הבדיל ערים בעבר הירדן אף שאינן קולטות כרגע עד שייכנסו לארץ, ועשה זאת משום – מצוה הבאה לידך אל תחמיצנה, ואפילו אם הקיום הוא חלקי.",
+                    "מכאן הסביר הכלי יקר שכאשר התורה אומרת מיד אחרי פרשיית הבדלת ערי המקלט \"וזאת התורה\" – כוונתה לתורה גדולה שיש ללמוד מכאן: \"וע\"ז נאמר אז יבדיל משה שלש ערים אע\"פ שאינן קולטות עד שיבדלו אותן ג' בארץ מ\"מ אמר משה מצוה שבאה לידי אקיימנה. וזהו לשון אז – כשלימד את ישראל ענין זה בפסוק הקודם מיד עשה הוא הלכה למעשה בכיוצא בו כדי שממנו יראו וכן יעשו בכל התורה ומצותיה, וע\"ז נאמר וזאת התורה אשר שם משה לפני בני ישראל שיעשו בכיוצא בזה בכל מצות התורה\".",
+                    "דומה שיש כאן גם לימוד על מעלתם של כל העוסקים בהצלה ובשמירת הנפש בכל הצורות ובכל המקצועות, שגם כאשר הם עוסקים בחצי פעולה או בהכנה לפעולה שכרגע עדיין לא יכולה להתבצע אבל כוונתם להציל הרי יש בזה חשיבות גדולה."
+                ]
+            },
+            {
+                id: "1919ed2fda30bf21",
+                chumash: "דברים",
+                parasha: "ראה",
+                year: "תשפ״ד",
+                dateISO: "2024-08-29",
+                dateDisplay: "כ״ו באב תשפ״ד (29.08.2024)",
+                sender: "סבא שאול (לע״נ אביו ר׳ שמשון מרדכי ז״ל)",
+                title: "המקום אשר יבחר ה' – מדוע לא הוזכרה ירושלים במפורש בתורה?",
+                verse: "״וְהָיָה הַמָּקוֹם אֲשֶׁר יִבְחַר ה' אֱלֹהֵיכֶם בּוֹ לְשַׁכֵּן שְׁמוֹ שָׁם...״ (דברים י״ב, י״א)",
+                summary: "לע״נ ר׳ שמשון מרדכי ז״ל (אביו של סבא שאול): מחלוקת הרמב״ם והסמ״ג במקור מצוות בניין המקדש, ושלוש החכמות שבמורה נבוכים להסתרת שמה של ירושלים.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת ראה תשפ\"ד. לע\"נ סבא ר' שמשון מרדכי (אבא של סבא שאול שילחטו\"א) שיום הזכרון שלו יחול בכ\"ט באב.",
+                    "\"ועברתם את הירדן וישבתם בארץ... והיה המקום אשר יבחר ה' א-לוקיכם בו לשכן שמו שם שמה תביאו את כל אשר אנוכי מצווה אתכם\". הרמב\"ם בתחילת הלכות בית הבחירה מציין כמקור למצווה לבנות מקדש את הפסוק בפרשת תרומה (\"ועשו לי מקדש\"), ואילו הסמ\"ג העדיף ללמוד זאת מהפסוק בפרשה שלנו.",
+                    "לגופו של עניין, הפסוקים בפרשתנו אינם מציינים מקום מפורש אלא רק \"המקום אשר יבחר ה'\", ביטוי החוזר שש (!) פעמים. הרמב\"ם במורה נבוכים (חלק ג' פרק מ\"ה) עמד על כך: \"ואשר לא התבאר בתורה ולא נזכר בפרט, אבל רמז אליו ואמר אל המקום אשר יבחר ה' וגו', יש בו אצלי שלש חכמות: האחת מהן, שלא יחזיקו בו האומות וילחמו עליו מלחמה חזקה כשידעו שזה המקום מן הארץ הוא תכלית התורה. והשנית, שלא יפסידוהו מי שהוא בידם עתה וישחיתוהו בכל יכלתם. והשלישית, והיא החזקה שבהם, שלא יבקש כל שבט היותו בנחלתו ולמשול בו, והיה נופל עליו מן המחלוקת והקטטה כמו שנפל בבקשת הכהונה, ולזה באה המצוה שלא יבנה בית הבחירה אלא אחר הקמת מלך שיצוה לבנותו ותסתלק המחלוקת\".",
+                    "שלוש הסיבות אקטואליות גם לזמננו. הסיבה השלישית קשורה לעם ישראל פנימה: בית המקדש אינו נחלתו הפרטית של שבט זה או אחר, אלא שייך לכל ישראל. יהי רצון שנשכיל להתאחד ולהתחבר ומתוך כך נזכה במהרה לנצח את אויבינו ולנצח על מלאכת בית ה'."
+                ]
+            },
+            {
+                id: "198d21b62887e85a",
+                chumash: "דברים",
+                parasha: "ראה",
+                year: "תשפ״ה",
+                dateISO: "2025-08-22",
+                dateDisplay: "כ״ח באב תשפ״ה (22.08.2025)",
+                sender: "סבא שאול (לע״נ אביו ר׳ שמשון מרדכי ז״ל)",
+                title: "הכיסופים לבניין ירושלים – 'אשר יבחר ה' מכל שבטיכם' (תפארת שלמה והכוזרי)",
+                verse: "״כִּי אִם אֶל הַמָּקוֹם אֲשֶׁר יִבְחַר ה' אֱלֹהֵיכֶם מִכָּל שִׁבְטֵיכֶם לָשׂוּם אֶת שְׁמוֹ שָׁם לְשִׁכְנוֹ תִדְרְשׁוּ״ (דברים י״ב, ה׳)",
+                summary: "לע״נ ר׳ שמשון מרדכי ז״ל: בית המקדש נבנה מתוך רצון ותפילת כל השבטים יחד ('תפארת שלמה'), ודברי רבי יהודה הלוי בחתימת ספר הכוזרי.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת ראה תשפ\"ה. לע\"נ אבא של סבא שאול ר' שמשון מרדכי ז\"ל שיום הזכרון שלו חל השבת.",
+                    "בפרשתנו מופיע מס' פעמים הביטוי \"המקום אשר יבחר ה'\". בעל 'תפארת שלמה' מראדומסק ממשיך עם הכיוון של הרמב\"ם במורה נבוכים ומסביר שזה גם פשט הפס' \"המקום אשר יבחר ה' מכל שבטיכם\": \"ר\"ל אף אם אמנם כי המקום הזה הוא ידוע שיהי' בירושלים ולא יבחר במקום אחר, מ\"מ גם שמה הנה א\"א לבנותו עד אשר יבחר ה' כל התפלות והרצונות מכל שבטיכם שיהיו ראוים לבנותו להם ולהשרות שכינתו בתוכם... וזהו שנאמר לשכנו תדרשו ובאת שמה. פי' אם לשכנו תדרשו ותבקשו פניו שזהו לשון דרישה... וז\"ש ובנה ירושלים עיר הקודש במהרה בימינו – פי' עם ימינו, מה שהאדם חושב כל ימיו על בנין בית המקדש מזה יבנה הבית המקדש\".",
+                    "שמענו בדבריו שיש צורך ותנאי שעם ישראל כולו ירצה וישאף לבניין המקדש, וכביטויו של ר' יהודה הלוי (בחתימת ספר הכוזרי) ביחס לירושלים: \"כִּי יְרוּשָׁלַיִם אָמְנָם תִּבָּנֶה כְּשֶׁיִּכְסְפוּ בְנֵי יִשְׂרָאֵל לָהּ תַּכְלִית הַכֹּסֶף\"."
+                ]
+            },
+            {
+                id: "18a2b6527d9d4db2",
+                chumash: "דברים",
+                parasha: "כי תצא",
+                year: "תשפ״ג",
+                dateISO: "2023-08-25",
+                dateDisplay: "ח׳ באלול תשפ״ג (25.08.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "'משלקה הרי הוא כאחיך' – שיקום ודף חדש (הרב זקס)",
+                verse: "״אַרְבָּעִים יַכֶּנּוּ לֹא יֹסִיף פֶּן יֹסִיף לְהַכֹּתוֹ עַל אֵלֶּה מַכָּה רַבָּה וְנִקְלָה אָחִיךָ לְעֵינֶיךָ״ (דברים כ״ה, ג׳)",
+                summary: "על המעבר המילולי בתורה מ'הרשע' בתחילת הפסוק ל'אחיך' בסופו לאחר קבלת העונש – המשמעות ההלכתית והמוסרית בימי הרחמים והסליחות.",
+                content: [
+                    "ב\"ה ערב שבת פרשת כי תצא תשפ\"ג. בתחילת דבריו לפרשת השבוע מצטט הרב זקס את הפסוקים האלה: \"כי יהיה ריב בין אנשים ונגשו אל המשפט ושפטום והצדיקו את הצדיק והרשיעו את הרשע... ארבעים יכנו לא יוסיף פן יוסיף להכותו על אלה מכה רבה ונקלה אחיך לעיניך\" (דברים כה, א-ג).",
+                    "חז\"ל למדו מהפסוקים האלה עקרון יסודי בהליך שיקומו של עבריין שריצה את עונשו. בתחילת הקטע קוראים לעבריין 'הרשע' כלומר האשם, ואילו בסופו, משנענש ולקה נקרא 'אחיך'. מכאן מסקנה הלכתית נקודתית ומסקנה כללית.",
+                    "הדין הנקודתי נוגע לעברות שעונשן כרת. אם בית הדין העניש את העבריין בעונש בידי אדם במלקות – מהעיקרון 'משלקה קראו אחיך' לומדים כאן כי עונש המלקות הזה מבטל את העונש הא-לוקי. מעכשיו משלקה העבריין, הוא אחיך, כלומר הוא לא ייכרת מהעם.",
+                    "אבל יש כאן גם מסקנה כללית: התורה מלמדת אותנו שבשעה שהעבריין קיבל את עונשו הוא פותח דף חדש ועלינו לקבלו מחדש כאחינו! מי שעשה עבירה וקיבל את עונשו הרי הוא כאחד מאיתנו והוא מתחיל מחדש! חשובים הדברים לכולנו בימים אלה – ימי הרחמים והסליחות."
+                ]
+            },
+            {
+                id: "18a4fbf27a7ffaf1",
+                chumash: "דברים",
+                parasha: "כי תבוא",
+                year: "תשפ״ג",
+                dateISO: "2023-09-01",
+                dateDisplay: "ט״ו באלול תשפ״ג (01.09.2023)",
+                sender: "סבא שאול (נשלח ישירות מסבא)",
+                title: "השורש שמ״ע ביהדות – הקשבה, הבנה ודעת שואלת (הרב זקס)",
+                verse: "״הַסְכֵּת וּשְׁמַע יִשְׂרָאֵל הַיּוֹם הַזֶּה נִהְיֵיתָ לְעָם לַה' אֱלֹהֶיךָ״ (דברים כ״ז, ט׳)",
+                summary: "על מילת המפתח של ספר דברים: שמירת המצוות אינה דורשת השעיית השכל אלא הקשבה עמוקה, הרהור ומאמץ מחשבתי להבין את דברי התורה.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת כי תבוא תשפ\"ג. בדבריו לפרשת השבוע מזכיר הרב זקס שהשורש שמ\"ע הוא מילת מפתח בתורה, ובין יתר הדברים הוא מצטט את הפסוק: \"וַיְדַבֵּר מֹשֶׁה וְהַכֹּהֲנִים הַלְוִיִּם אֶל כָּל יִשְׂרָאֵל לֵאמֹר הַסְכֵּת וּשְׁמַע יִשְׂרָאֵל הַיּוֹם הַזֶּה נִהְיֵיתָ לְעָם לַה' אֱ-לֹקֶיךָ\" (דברים כז, ט-י).",
+                    "בהמשך דבריו ולכל אורך ספר דברים משתמש משה רבינו בפועל 'שמ\"ע' כשהוא רוצה שבני ישראל יקשיבו לדבריו ויצייתו לקב\"ה – אך לא באופן עיוור ולא מתוך פחד בלבד. שמירת המצוות מצריכה הקשבה על מימדיה הרבים: קשב, הרהור והתבוננות במהותו של ה' כפי שהיא משתקפת בבריאה, בהתגלות ובגאולה.",
+                    "הקשבה זו דורשת ענווה, זיכרון והכרת הטוב – אך אין נדרשת השעייה של השכל ולא השתקה של הדעת השואלת. הקב\"ה רוצה שלא רק נציית אלא גם נבין. לכל העמים יש חוקים והם צריכים לציית להם, אך מעטים הם העמים לבד מישראל שהעמידו להם כמטרת-על להבין מדוע החוק כמו שהוא. לכך מכוונת התורה במילת 'שמע'. לימוד תורה כולל, אם כן, לא רק שמיעה גרידא, אלא גם ניסיון ומאמץ משלנו להבין את דברי הכתוב."
+                ]
+            },
+            {
+                id: "18a73a44224b3461",
+                chumash: "דברים",
+                parasha: "ניצבים - וילך",
+                year: "תשפ״ג",
+                dateISO: "2023-09-08",
+                dateDisplay: "כ״ב באלול תשפ״ג (08.09.2023)",
+                sender: "סבא שאול (נשלח ישירות מסבא)",
+                title: "ברית הדורות ו'ובחרת בחיים' – הדרך המאתגרת אל החיים (הרב זקס)",
+                verse: "״הַחַיִּים וְהַמָּוֶת נָתַתִּי לְפָנֶיךָ הַבְּרָכָה וְהַקְּלָלָה וּבָחַרְתָּ בַּחַיִּים״ (דברים ל׳, י״ט)",
+                summary: "כיצד מחייבת הברית את הדורות שטרם נולדו ('אשר איננו פה עמנו היום'), ומשמעות הציווי לבחור בחיים אמיתיים על פני תחליפי חיים.",
+                content: [
+                    "ב\"ה ערב שבת קודש פרשת ניצבים – וילך תשפ\"ג. בפרשיות בסיומה של התורה יוצר משה רבינו בדבריו קשר עם הדורות הבאים: \"ולא אתכם לבדכם אנכי כורת את הברית הזאת... כי את אשר ישנו פה עמנו היום לפני ה' א-לקינו ואת אשר איננו פה עמנו היום\" (דברים כט, יג-יד).",
+                    "כותב הרב זקס בדבריו לפרשת ניצבים: התיתכן ברית בלי הסכמה? הרב זקס סבור שהתשובה נעוצה בציווי: \"וּבָחַרְתָּ בַּחַיִּים, לְמַעַן תִּחְיֶה אַתָּה וְזַרְעֶךָ\" (דברים ל, יט). להיות יהודי משמעו לא ללכת עם הזרם; לא לעשות מה שאחרים עושים רק מפני שכך הם עושים. היהדות מלמדת אותנו איך למצוא את אלוהים כאן על פני האדמה, לא בשמיים מעל.",
+                    "וּבָחַרְתָּ בַּחַיִּים – בחירה שנשמעת קלה מאין כמוה, אך במבחן המציאות וההיסטוריה הוכח שהיא קשה. בדרך כלל, אנשים בוחרים לא בחיים אלא בתחליפי חיים: עושר, רכוש, מעמד, כוח ותהילה. מאוחר מדי הם מבינים שהעושר האמיתי איננו מה שיש לאדם, אלא מה שהאדם שמח בו. על ידי כך שאנו עובדים את ה', הגדול מאתנו-עצמנו לאין שיעור, נעשים אנו עצמנו גדולים לאין שיעור מכפי שהיינו אלמלא כן. למה יהדות? כי זוהי הדרך המאתגרת ביותר לבחירה בחיים."
+                ]
+            },
+            {
+                id: "18abbfc821461225",
+                chumash: "דברים",
+                parasha: "האזינו",
+                year: "תשפ״ד",
+                dateISO: "2023-09-22",
+                dateDisplay: "ז׳ בתשרי תשפ״ד (22.09.2023)",
+                sender: "סבא שאול (נשלח ישירות מסבא)",
+                title: "'ימצאהו בארץ מדבר' – המלכת ה' על העולם על ידי האדם (הרב סבתו)",
+                verse: "״יִמְצָאֵהוּ בְּאֶרֶץ מִדְבָּר וּבְתֹהוּ יְלֵל יְשִׁמֹן״ (דברים ל״ב, י׳)",
+                summary: "דבר תורה לשבת שובה: המציאה ההדדית במדבר (רש״י והרב סבתו), והקשר שבין בריאת האדם בראש השנה לבין המלכת ה' בסיני.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת האזינו שבת תשובה תשפ\"ד. \"ימצאהו בארץ מדבר ובתוהו ילל ישימון\". רש\"י על אתר מבאר כך: \"אותם מצא לו נאמנים בארץ מדבר שקיבלו עליהם תורתו ומלכותו ועולו... 'ובתוהו ילל ישימון' – ארץ ציה ושממה מקום יללת תנים ובנות יענה אף שם נמשכו אחר האמונה\".",
+                    "הרב סבתו (אהבת תורה עמ' 404) מסביר שיש כאן שבח כפול לעם ישראל: הליכה אחרי ה' במקום שממה פיזית ורוחנית. המציאה עליה דיבר הפס' היא כפולה – הקב\"ה מצא את ישראל וסיפק את צרכיהם במדבר, ועם ישראל באמונה ובמסירות הלך אחרי הקב\"ה והמליך אותו.",
+                    "כך גזר מלך מלכי המלכים שמלכותו לא תהא ניכרת בעולם עד שבני אדם ממליכים אותו עליהם. כך הרב סבתו מסביר את מה שאמרנו בראש השנה \"זה היום תחילת מעשיך\": העולם נברא בכ\"ה באלול, אך ביום השישי נברא האדם והכל היה תלוי ועומד עד שייברא האדם וימליך את ה' על העולם. כך גם בסיני כשאמרו ישראל נעשה ונשמע – \"גאלו את העולם משממתו והפכו מדבר ציה לארץ נחלי מים\". ברכת שבת שלום, גמר חתימה טובה ושנה טובה לכולם! סבא וסבתא."
+                ]
+            },
+            {
+                id: "18a978ab4254d76c",
+                chumash: "מועדים",
+                parasha: "ראש השנה",
+                year: "תשפ״ד",
+                dateISO: "2023-09-15",
+                dateDisplay: "כ״ט באלול תשפ״ג / ערב ר״ה תשפ״ד (15.09.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "מדוע מברכים 'שהחיינו' ביום הדין? – שיח שרפי קודש וש״י עגנון",
+                verse: "״בָּרוּךְ אַתָּה ה'... שֶׁהֶחֱיָנוּ וְקִיְּמָנוּ וְהִגִּיעָנוּ לַזְּמַן הַזֶּה״",
+                summary: "תיאור ליל ראש השנה אצל עגנון, והסבר עמוק מדוע מברכים 'שהחיינו' על יום הדין: הדין הוא טוב לעולם והעולם מתקיים בזכותו.",
+                content: [
+                    "ב\"ה ערב ראש השנה תשפ\"ד. אצל עגנון אנחנו מוצאים תיאור פשוט ויפה של ערב ראש השנה בבית, וכך הוא כותב: \"...ומסדרים את השולחן ומקדשים על היין. ובמקום 'מועדים לשמחה' אומר: 'את יום הזיכרון הזה', חותם: 'ודברך אמת וקים לעד ברוך אתה ה' מלך על כל הארץ מקדש ישראל ויום הזכרון'. ואם חל בשבת אומרים תחילה 'ויכולו' קודם הקידוש כדרך כל יום טוב שחל בשבת ומזכיר של שבת, ומברך שהחיינו אחר הקידוש.",
+                    "ומפני מה אומרים זמן ראש השנה? והלא הוא יום הדין! והיאך אנו מברכים 'שהחיינו וקיימנו והגיענו לזמן הזה'? אלא ימי הדין הם קיום לעולם, והעולם עומד עליהם! והדין הוא טוב לעולם, לפיכך אנו מברכים שהחיינו וקיימנו והגיענו לזמן הזה\" (המקור: שיח שרפי קודש חלק שני סימן תרס).",
+                    "התברכנו במשפחה גדולה של בנים ובני בנים, וסבתא ואני רוצים לברך את כל אחד מהם בברכת שנה טובה ומבורכת, שנה של שלווה ושנה שבה ימלא ה' משאלות לבנו לטובה!"
+                ]
+            },
+            {
+                id: "18addb9c882eda93",
+                chumash: "מועדים",
+                parasha: "סוכות",
+                year: "תשפ״ד",
+                dateISO: "2023-09-29",
+                dateDisplay: "י״ד בתשרי תשפ״ד (29.09.2023)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "הפרדוקס של חג הסוכות – אוניברסליות, לאומיות וכפל שמחה (הרב זקס)",
+                verse: "״בַּסֻּכֹּת תֵּשְׁבוּ שִׁבְעַת יָמִים כָּל הָאֶזְרָח בְּיִשְׂרָאֵל יֵשְׁבוּ בַּסֻּכֹּת״ (ויקרא כ״ג, מ״ב)",
+                summary: "על החיבור שבין החג האוניברסלי של הגשם והטבע לבין הזיכרון הלאומי של יציאת מצרים, ועל סוכות כחותם של שלושת הרגלים ושל הימים הנוראים.",
+                content: [
+                    "ב\"ה ערב שבת קדש חג הסוכות תשפ\"ד. ברכת מזל טוב לירון לרגל יום ההולדת שחל בחג.",
+                    "הרב זקס מלמד אותנו שבעצם מהותו של חג הסוכות ישנו פרדוקס: מצד אחד סוכות הוא האוניברסלי בחגים, החג היחיד שכל העמים עתידים לחגוג, כפי שמזכיר זכריה הנביא כאשר הדבר קשור בצורך של כל העמים למים ולגשם. מאידך יש נקודה לאומית בחג הסוכות – נקודה השייכת דווקא לעם ישראל: ישיבה בסוכות לזכר הסוכות שה' הושיב את בני ישראל ביציאת מצרים. החג כולו עומד בסימן של הטבע וגידולי הקרקע.",
+                    "וישנו חשבון נוסף: החגים שלנו מבטאים שני מעגלי חיים, שני מעגלי זמנים: האחד הוא המעגל השנתי של שלושת הרגלים – פסח, שבועות וסוכות. אבל ישנו מעגל נוסף של חגי החודש השביעי – ראש השנה, יום כיפור וסוכות. חג הסוכות הוא גם החותם של שלושת הרגלים וגם החותם של הימים הנוראים.",
+                    "סוכות הוא איפוא חג של כפל שמחה: אנו צריכים לשמוח על שאנחנו חלק מעם הזה, ועל כך שאנחנו (ולו רק בגלל הגשם) שותפים לגורלה של האנושות. בברכת שבת שלום ומועדים לשמחה, סבא וסבתא."
+                ]
+            },
+            {
+                id: "195b87654cd1a6a4",
+                chumash: "מועדים",
+                parasha: "פרשת פרה",
+                year: "תשפ״ה",
+                dateISO: "2025-03-21",
+                dateDisplay: "כ״א באדר תשפ״ה (21.03.2025)",
+                sender: "סבא שאול (נשלח ע״י ירון)",
+                title: "כיבוד אב ואם ופרה אדומה – מעשה דמא בן נתינה והרב יהודה שביב ז״ל",
+                verse: "״זֹאת חֻקַּת הַתּוֹרָה אֲשֶׁר צִוָּה ה' לֵאמֹר... וְיִקְחוּ אֵלֶיךָ פָרָה אֲדֻמָּה תְמִימָה״ (במדבר י״ט, ב׳)",
+                summary: "מדוע שכרו של דמא בן נתינה על כיבוד אביו היה דווקא שנולדה לו פרה אדומה? חידושי הרי״ם, הרב יצחק הלוי, והמשל הנפלא של הרב יהודה שביב ז״ל על הפרה האם.",
+                content: [
+                    "ב\"ה ערב שבת קדש פרשת ויקהל שבת פרה תשפ\"ה. הגמרא בקידושין ל\"א, א מספרת על דמא בן נתינה מאשקלון שלא ציער את אביו הישן, והפסיד מכירת אבנים לאפוד בשישים ריבוא, ולשנה האחרת נולדה לו פרה אדומה בעדרו. מה הקשר בין כיבוד הורים לפרה אדומה?",
+                    "יש שהביאו בשם בעל חידושי הרי\"ם מגור שמכיוון שהיה כאן גוי שקיים כיבוד הורים בצורה מעוררת הערכה, רצה הקב\"ה להראות מעלתם של ישראל שמוכנים להוציא ממון רב גם בגלל מצווה שמעית שאיננו יודעים את טעמה. הרב יצחק הלוי מקרני שומרון הוסיף שפרה אדומה מלמדת גם על כיבוד אב ואם עצמו: שגם מצוות שכליות שאנו מבינים את טעמיהן אנו מקיימים מכורח ציווי ה' – \"כאשר צוך ה' א-לוקיך\".",
+                    "לימוד חשוב נוסף מופיע בכתביו של הרב יהודה שביב ז\"ל: פרה אדומה באה לכפר על חטא העגל – תבוא האם ותקנח צואת בנה. הפרה האם איננה \"עושה כיבוד בן\" אלא זה טבוע בה. וכך לשונו היפה של הרב שביב: \"אפשר וזה רומזים לדמא מכבד אביו, שאם משתבח הוא בעצמו שלא העיר את אביו משנתו ומנע מעצמו רווח גדול – ילך וילמד ממצות פרה ומתכונת הפרה-האם, וידע: כי יותר משעושה ומסוגל צאצא לעשות להוריו – עושים הם לו. וגם אם כיבד את אביו הרבה, אל יחזיק טובה לעצמו, שכדאי הוא לעשות עוד כהנה וכהנה כדי לפרוע מעט את שחב הוא להם על שעשו עמו\"."
+                ]
+            }
+        ];
+
+        // משתני מצב לסינון ומיון
+        const STORAGE_KEY_CUSTOM = 'saba_shaul_custom_lessons_v1';
+        const STORAGE_KEY_FAVS = 'saba_shaul_favorites_v1';
+        let favoriteIds = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_FAVS) || '[]'));
+
+        const CHUMASH_COLORS = {
+            'בראשית': 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'שמות': 'bg-sky-50 text-sky-800 border-sky-200',
+            'ויקרא': 'bg-purple-50 text-purple-800 border-purple-200',
+            'במדבר': 'bg-amber-50 text-amber-800 border-amber-200',
+            'דברים': 'bg-rose-50 text-rose-800 border-rose-200',
+            'מועדים': 'bg-indigo-50 text-indigo-800 border-indigo-200'
+        };
+
+        let currentState = {
+            chumash: 'all',
+            year: 'all',
+            parasha: 'all',
+            search: '',
+            onlyFavorites: false,
+            sort: 'parasha-order',
+            fontSize: 18 // פיקסלים עבור גוף דבר התורה
+        };
+
+        // טעינת דברי תורה שהמשתמש הוסיף ושמר בדפדפן
+        function loadCustomLessonsFromStorage() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM) || '[]');
+                if (Array.isArray(saved) && saved.length > 0) {
+                    const existingIds = new Set(lessonsData.map(l => l.id));
+                    saved.forEach(item => {
+                        if (!existingIds.has(item.id)) {
+                            lessonsData.unshift(item);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error('שגיאה בטעינת נתונים שמורים:', e);
+            }
+        }
+
+        // מילוי תפריטי הסינון (שנים ופרשות)
+        function populateFilters() {
+            const yearSelect = document.getElementById('year-filter');
+            const years = [...new Set(lessonsData.map(l => l.year))].sort().reverse();
+            yearSelect.innerHTML = '<option value="all">כל השנים העבריות</option>';
+            years.forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.textContent = `שנת ${y}`;
+                yearSelect.appendChild(opt);
+            });
+            yearSelect.value = currentState.year;
+            updateParashaDropdown();
+        }
+
+        function updateParashaDropdown() {
+            const parashaSelect = document.getElementById('parasha-filter');
+            const relevantLessons = currentState.chumash === 'all' 
+                ? lessonsData 
+                : lessonsData.filter(l => l.chumash === currentState.chumash);
+
+            const availableParashot = new Set(relevantLessons.map(l => l.parasha));
+            
+            parashaSelect.innerHTML = '<option value="all">כל הפרשות והמועדים</option>';
+            PARASHA_ORDER.forEach(p => {
+                if (availableParashot.has(p.name)) {
+                    const opt = document.createElement('option');
+                    opt.value = p.name;
+                    opt.textContent = p.chumash === 'מועדים' ? p.name : `פרשת ${p.name}`;
+                    parashaSelect.appendChild(opt);
+                }
+            });
+            parashaSelect.value = currentState.parasha;
+        }
+
+        // אתחול האפליקציה בטעינת הדף
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomLessonsFromStorage();
+            lucide.createIcons();
+            populateFilters();
+            updateNewParashaOptions();
+            renderLessons();
+            setupEventListeners();
+        });
+
+        // עדכון רשימת הפרשות במודאל הוספת דבר תורה חדש
+        function updateNewParashaOptions() {
+            const chumash = document.getElementById('new-chumash').value;
+            const select = document.getElementById('new-parasha');
+            select.innerHTML = '';
+            PARASHA_ORDER.filter(p => p.chumash === chumash).forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.name;
+                opt.textContent = p.name;
+                select.appendChild(opt);
+            });
+        }
+
+        // הגדרת מאזינים לאירועים (חיפוש, בחירות, טאבים)
+        function setupEventListeners() {
+            const searchInput = document.getElementById('search-input');
+            const clearBtn = document.getElementById('clear-search-btn');
+
+            searchInput.addEventListener('input', (e) => {
+                currentState.search = e.target.value.trim();
+                clearBtn.classList.toggle('hidden', currentState.search.length === 0);
+                renderLessons();
+            });
+
+            document.getElementById('year-filter').addEventListener('change', (e) => {
+                currentState.year = e.target.value;
+                renderLessons();
+            });
+
+            document.getElementById('parasha-filter').addEventListener('change', (e) => {
+                currentState.parasha = e.target.value;
+                renderLessons();
+            });
+
+            document.getElementById('sort-select').addEventListener('change', (e) => {
+                currentState.sort = e.target.value;
+                renderLessons();
+            });
+
+            // טאבים של חומשים
+            document.querySelectorAll('.chumash-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.chumash-btn').forEach(b => {
+                        b.classList.remove('bg-royal-800', 'text-white', 'shadow-sm', 'font-semibold');
+                        b.classList.add('bg-white', 'text-slate-700', 'font-medium');
+                    });
+                    btn.classList.remove('bg-white', 'text-slate-700', 'font-medium');
+                    btn.classList.add('bg-royal-800', 'text-white', 'shadow-sm', 'font-semibold');
+
+                    currentState.chumash = btn.dataset.chumash;
+                    currentState.parasha = 'all'; // איפוס פרשה בעת החלפת חומש
+                    updateParashaDropdown();
+                    renderLessons();
+                });
+            });
+
+            // סגירת מודאלים בלחיצה על Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeReaderModal();
+                    closeAddModal();
+                }
+            });
+        }
+
+        // ניקוי שורת החיפוש בלחיצה על כפתור ה-X
+        function clearSearchInput() {
+            const searchInput = document.getElementById('search-input');
+            searchInput.value = '';
+            currentState.search = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            searchInput.focus();
+            renderLessons();
+        }
+
+        // הפעלת חיפוש מהיר בלחיצה על תגית (שנה, פרשה או מילת מפתח)
+        function quickSearch(term) {
+            const searchInput = document.getElementById('search-input');
+            searchInput.value = term;
+            currentState.search = term;
+            document.getElementById('clear-search-btn').classList.remove('hidden');
+            renderLessons();
+        }
+
+        // נרמול גרשיים כדי שחיפוש של תשפ"ד או תשפ״ד יעבוד בצורה זהה
+        function normalizeHebrewQuotes(str) {
+            return str.replace(/["״׳']/g, '"').toLowerCase();
+        }
+
+        // הדגשת מילת החיפוש בתוך הטקסט המוצג בכרטיסיות
+        function highlightText(text, query) {
+            if (!query || !text) return text;
+            const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/["״׳']/g, '["״׳\']');
+            const regex = new RegExp(`(${escaped})`, 'gi');
+            return text.replace(regex, '<mark class="bg-amber-200/80 text-royal-950 rounded px-0.5 font-semibold">$1</mark>');
+        }
+
+        // קבלת אינדקס למיון לפי סדר הפרשות בתורה
+        function getParashaSortIndex(parashaName) {
+            const idx = PARASHA_ORDER.findIndex(p => p.name === parashaName);
+            return idx === -1 ? 999 : idx;
+        }
+
+        // רינדור כרטיסיות דברי התורה בהתאם לסינון ולמיון
+        function renderLessons() {
+            const grid = document.getElementById('lessons-grid');
+            const emptyState = document.getElementById('empty-state');
+            const totalCountEl = document.getElementById('total-count');
+            const filteredCountEl = document.getElementById('filtered-count');
+            const favCountEl = document.getElementById('fav-count');
+            const resetBtn = document.getElementById('reset-btn');
+            const activeLabel = document.getElementById('active-filters-label');
+
+            totalCountEl.textContent = lessonsData.length;
+            if (favCountEl) favCountEl.textContent = favoriteIds.size;
+
+            // סינון
+            let filtered = lessonsData.filter(lesson => {
+                const matchChumash = currentState.chumash === 'all' || lesson.chumash === currentState.chumash;
+                const matchYear = currentState.year === 'all' || lesson.year === currentState.year;
+                const matchParasha = currentState.parasha === 'all' || lesson.parasha === currentState.parasha;
+                const matchFav = !currentState.onlyFavorites || favoriteIds.has(lesson.id);
+                
+                let matchSearch = true;
+                if (currentState.search) {
+                    const normalizedQuery = normalizeHebrewQuotes(currentState.search);
+                    const haystack = normalizeHebrewQuotes(`${lesson.title} ${lesson.parasha} ${lesson.chumash} ${lesson.year} ${lesson.dateDisplay} ${lesson.verse} ${lesson.summary} ${lesson.content.join(' ')}`);
+                    // תמיכה בחיפוש של מספר מילים (למשל: "ראה תשפ״ה" או "רמב״ן ירושלים")
+                    const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+                    matchSearch = terms.every(term => haystack.includes(term));
+                }
+
+                return matchChumash && matchYear && matchParasha && matchFav && matchSearch;
+            });
+
+            // מיון
+            filtered.sort((a, b) => {
+                if (currentState.sort === 'parasha-order') {
+                    const diff = getParashaSortIndex(a.parasha) - getParashaSortIndex(b.parasha);
+                    if (diff !== 0) return diff;
+                    return b.dateISO.localeCompare(a.dateISO);
+                } else if (currentState.sort === 'date-desc') {
+                    return b.dateISO.localeCompare(a.dateISO);
+                } else {
+                    return a.dateISO.localeCompare(b.dateISO);
+                }
+            });
+
+            filteredCountEl.textContent = filtered.length;
+
+            // הצגת כפתור איפוס ותווית סינון פעיל
+            const hasFilters = currentState.chumash !== 'all' || currentState.year !== 'all' || currentState.parasha !== 'all' || currentState.search !== '' || currentState.onlyFavorites;
+            resetBtn.classList.toggle('hidden', !hasFilters);
+
+            let filterDescriptions = [];
+            if (currentState.onlyFavorites) filterDescriptions.push('מועדפים בלבד');
+            if (currentState.chumash !== 'all') filterDescriptions.push(`חומש ${currentState.chumash}`);
+            if (currentState.parasha !== 'all') filterDescriptions.push(`פרשת ${currentState.parasha}`);
+            if (currentState.year !== 'all') filterDescriptions.push(`שנת ${currentState.year}`);
+            if (currentState.search) filterDescriptions.push(`חיפוש: "${currentState.search}"`);
+            activeLabel.textContent = filterDescriptions.length ? `(${filterDescriptions.join(' • ')})` : '';
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(lesson => {
+                const badgeClass = CHUMASH_COLORS[lesson.chumash] || 'bg-slate-100 text-slate-800 border-slate-200';
+                const q = currentState.search;
+                const isFav = favoriteIds.has(lesson.id);
+                return `
+                    <article onclick="openReaderModal('${lesson.id}')" 
+                             class="lesson-card-animate group bg-white rounded-2xl border border-parchment-200 hover:border-amber-400 shadow-sm hover:shadow-md transition-all duration-200 p-5 flex flex-col justify-between cursor-pointer relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-1.5 h-full bg-royal-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div>
+                            <!-- תגיות חומש, פרשה, שנה וכוכב מועדפים -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">
+                                        ${highlightText(lesson.chumash, q)}
+                                    </span>
+                                    <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-parchment-100 text-parchment-900 border border-parchment-200">
+                                        ${highlightText(lesson.parasha, q)}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xs font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/70">
+                                        ${highlightText(lesson.year, q)}
+                                    </span>
+                                    <button type="button" onclick="toggleFavorite(event, '${lesson.id}')" class="p-1 rounded-lg hover:bg-amber-50 transition cursor-pointer" title="${isFav ? 'הסר ממועדפים' : 'הוסף למועדפים'}">
+                                        <i data-lucide="star" class="w-4 h-4 ${isFav ? 'fav-star-active' : 'text-slate-300 hover:text-amber-400'}"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- כותרת השיעור -->
+                            <h3 class="text-lg font-bold text-slate-900 group-hover:text-royal-800 transition-colors mb-2 leading-snug font-serif">
+                                ${highlightText(lesson.title, q)}
+                            </h3>
+
+                            <!-- פסוק מרכזי -->
+                            ${lesson.verse ? `
+                                <p class="text-xs font-serif font-semibold text-parchment-800 bg-parchment-50 px-3 py-1.5 rounded-lg border-r-2 border-amber-400 mb-3 line-clamp-1">
+                                    ${highlightText(lesson.verse, q)}
+                                </p>
+                            ` : ''}
+
+                            <!-- תקציר -->
+                            <p class="text-sm text-slate-600 leading-relaxed line-clamp-3 mb-4">
+                                ${highlightText(lesson.summary, q)}
+                            </p>
+                        </div>
+
+                        <!-- פוטר כרטיסייה -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                            <span class="truncate max-w-[65%]">${lesson.dateDisplay}</span>
+                            <span class="text-royal-800 font-semibold flex items-center gap-1 group-hover:translate-x-[-2px] transition-transform">
+                                לקריאה מלאה
+                                <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                            </span>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // ניקוי כל המסננים
+        function resetFilters() {
+            currentState = {
+                ...currentState,
+                chumash: 'all',
+                year: 'all',
+                parasha: 'all',
+                search: '',
+                onlyFavorites: false
+            };
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            document.getElementById('year-filter').value = 'all';
+            const favBtn = document.getElementById('favorites-toggle-btn');
+            if (favBtn) {
+                favBtn.classList.remove('bg-amber-500', 'text-white', 'border-amber-600');
+                favBtn.classList.add('bg-white', 'text-amber-800', 'border-amber-300');
+            }
+            
+            document.querySelectorAll('.chumash-btn').forEach(b => {
+                b.classList.remove('bg-royal-800', 'text-white', 'shadow-sm', 'font-semibold');
+                b.classList.add('bg-white', 'text-slate-700', 'font-medium');
+                if (b.dataset.chumash === 'all') {
+                    b.classList.remove('bg-white', 'text-slate-700', 'font-medium');
+                    b.classList.add('bg-royal-800', 'text-white', 'shadow-sm', 'font-semibold');
+                }
+            });
+
+            updateParashaDropdown();
+            renderLessons();
+        }
+
+        // פתיחת חלון קריאה מלאה
+        let activeLesson = null;
+        function openReaderModal(id) {
+            const lesson = lessonsData.find(l => l.id === id);
+            if (!lesson) return;
+            activeLesson = lesson;
+
+            document.getElementById('modal-chumash').textContent = `חומש ${lesson.chumash}`;
+            document.getElementById('modal-parasha').textContent = `פרשת ${lesson.parasha}`;
+            document.getElementById('modal-year').textContent = lesson.year;
+            document.getElementById('modal-title').textContent = lesson.title;
+            document.getElementById('modal-sender').textContent = lesson.sender;
+            document.getElementById('modal-date').textContent = lesson.dateDisplay;
+
+            const verseEl = document.getElementById('modal-verse');
+            if (lesson.verse) {
+                verseEl.textContent = lesson.verse;
+                verseEl.classList.remove('hidden');
+            } else {
+                verseEl.classList.add('hidden');
+            }
+
+            const contentEl = document.getElementById('modal-content');
+            contentEl.innerHTML = lesson.content.map(p => `<p>${p}</p>`).join('');
+            contentEl.style.fontSize = `${currentState.fontSize}px`;
+
+            // עדכון אזור ההדפסה במקביל
+            document.getElementById('print-title').textContent = lesson.title;
+            document.getElementById('print-meta').textContent = `חומש ${lesson.chumash} • פרשת ${lesson.parasha} • ${lesson.year}`;
+            document.getElementById('print-verse').textContent = lesson.verse || '';
+            document.getElementById('print-verse').classList.toggle('hidden', !lesson.verse);
+            document.getElementById('print-content').innerHTML = lesson.content.map(p => `<p>${p}</p>`).join('');
+
+            document.getElementById('reader-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReaderModal() {
+            document.getElementById('reader-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+            activeLesson = null;
+        }
+
+        // שינוי גודל גופן בקריאה
+        function changeFontSize(delta) {
+            currentState.fontSize = Math.min(26, Math.max(14, currentState.fontSize + delta * 2));
+            document.getElementById('modal-content').style.fontSize = `${currentState.fontSize}px`;
+        }
+
+        // העתקת דבר התורה ללוח (Clipboard)
+        function copyLessonText() {
+            if (!activeLesson) return;
+            const fullText = `${activeLesson.title}\nפרשת ${activeLesson.parasha} (${activeLesson.year})\n${activeLesson.verse ? activeLesson.verse + '\n' : ''}\n${activeLesson.content.join('\n\n')}`;
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = fullText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('דבר התורה הועתק ללוח בהצלחה!');
+            } catch (err) {
+                showToast('לא ניתן היה להעתיק אוטומטית');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // פתיחה וסגירה של מודאל הוספת דבר תורה
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // הוספת דבר תורה חדש למאגר
+        function handleAddLesson(e) {
+            e.preventDefault();
+            const chumash = document.getElementById('new-chumash').value;
+            const parasha = document.getElementById('new-parasha').value;
+            const year = document.getElementById('new-year').value.trim();
+            const title = document.getElementById('new-title').value.trim();
+            const verse = document.getElementById('new-verse').value.trim();
+            const rawContent = document.getElementById('new-content').value.trim();
+
+            const paragraphs = rawContent.split(/\n+/).map(p => p.trim()).filter(Boolean);
+            const summary = paragraphs[0] ? paragraphs[0].slice(0, 160) + (paragraphs[0].length > 160 ? '...' : '') : '';
+            const today = new Date().toISOString().split('T')[0];
+
+            const newLesson = {
+                id: 'custom-' + Date.now(),
+                chumash,
+                parasha,
+                year,
+                dateISO: today,
+                dateDisplay: `נוסף ידנית (${year})`,
+                sender: 'סבא שאול (הוספה מהמייל)',
+                title,
+                verse,
+                summary,
+                content: paragraphs
+            };
+
+            lessonsData.unshift(newLesson);
+            
+            // שמירה קבועה ב-localStorage של הדפדפן
+            try {
+                const existingCustom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM) || '[]');
+                existingCustom.unshift(newLesson);
+                localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(existingCustom));
+            } catch (err) {
+                console.error('שגיאה בשמירת השיעור בדפדפן:', err);
+            }
+
+            populateFilters();
+            renderLessons();
+            closeAddModal();
+            document.getElementById('add-lesson-form').reset();
+            updateNewParashaOptions();
+            showToast(`דבר התורה לפרשת ${parasha} (${year}) נשמר בארכיון!`);
+        }
+
+        // הוספה או הסרה ממועדפים
+        function toggleFavorite(event, id) {
+            event.stopPropagation();
+            if (favoriteIds.has(id)) {
+                favoriteIds.delete(id);
+                showToast('הוסר מרשימת המועדפים');
+            } else {
+                favoriteIds.add(id);
+                showToast('נוסף למועדפים לשולחן שבת');
+            }
+            localStorage.setItem(STORAGE_KEY_FAVS, JSON.stringify([...favoriteIds]));
+            renderLessons();
+        }
+
+        // סינון לפי מועדפים בלבד
+        function toggleFavoritesFilter() {
+            currentState.onlyFavorites = !currentState.onlyFavorites;
+            const favBtn = document.getElementById('favorites-toggle-btn');
+            if (currentState.onlyFavorites) {
+                favBtn.classList.remove('bg-white', 'text-amber-800', 'border-amber-300');
+                favBtn.classList.add('bg-amber-500', 'text-white', 'border-amber-600');
+            } else {
+                favBtn.classList.remove('bg-amber-500', 'text-white', 'border-amber-600');
+                favBtn.classList.add('bg-white', 'text-amber-800', 'border-amber-300');
+            }
+            renderLessons();
+        }
+
+        // ייצוא כל הארכיון לקובץ JSON לשיתוף או גיבוי
+        function exportArchiveJSON() {
+            const dataStr = JSON.stringify(lessonsData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `saba-shaul-torah-archive-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('קובץ הגיבוי הורד למחשב!');
+        }
+
+        // ייבוא מאגר מקובץ JSON
+        function importArchiveJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) throw new Error('פורמט קובץ לא תקין');
+                    const existingIds = new Set(lessonsData.map(l => l.id));
+                    const existingKeys = new Set(lessonsData.map(l => `${l.parasha}-${normalizeHebrewQuotes(l.year)}`));
+                    let addedCount = 0;
+
+                    imported.forEach(item => {
+                        const key = `${item.parasha}-${normalizeHebrewQuotes(item.year)}`;
+                        if (!existingIds.has(item.id) && !existingKeys.has(key)) {
+                            lessonsData.push(item);
+                            existingIds.add(item.id);
+                            existingKeys.add(key);
+                            addedCount++;
+                        }
+                    });
+
+                    saveAllCustomToStorage();
+                    populateFilters();
+                    renderLessons();
+                    showToast(`יובאו בהצלחה ${addedCount} דברי תורה חדשים!`);
+                } catch (err) {
+                    showToast('שגיאה בקריאת קובץ הגיבוי');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        // שמירת כל השיעורים שנוספו מעבר למאגר הבסיסי ב-localStorage
+        function saveAllCustomToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(lessonsData));
+            } catch (err) {
+                console.error('שגיאה בשמירת הארכיון בדפדפן:', err);
+            }
+        }
+
+        // חילוץ פרשה, חומש ושנה עברית מתוך כותרת ותוכן פוסט מהאתר tora.hatul.info
+        function parseHatulPostMetadata(rawTitle, paragraphs) {
+            const fullText = `${rawTitle} ${paragraphs.slice(0, 2).join(' ')}`;
+            
+            // זיהוי שנה עברית (תשע"ד עד תש"צ)
+            const yearMatch = fullText.match(/ה?(תש[עפצ]["״׳']?[א-ת])/);
+            let year = yearMatch ? yearMatch[1].replace(/["׳']/g, '״') : 'תש״פ–תשפ״ג';
+            if (year.length === 4 && !year.includes('״')) {
+                year = year.slice(0, 3) + '״' + year.slice(3);
+            }
+
+            // התאמות כתיב חסר/מלא בשמות פרשות מהאתר
+            const parashaAliases = {
+                'תצוה': 'תצווה',
+                'חקת': 'חוקת',
+                'פינחס': 'פינחס',
+                'פנחס': 'פינחס',
+                'שפטים': 'שופטים',
+                'כי תבא': 'כי תבוא',
+                'נצבים': 'ניצבים - וילך',
+                'ניצבים': 'ניצבים - וילך',
+                'וילך': 'ניצבים - וילך',
+                'אחרי': 'אחרי מות',
+                'בחקתי': 'בחוקותי',
+                'בחוקתי': 'בחוקותי',
+                'בהעלתך': 'בהעלותך',
+                'מצרע': 'מצורע'
+            };
+
+            let matchedParasha = null;
+            let matchedChumash = 'מועדים';
+
+            // בדיקה ישירה מול רשימת הפרשות המסודרת
+            for (const p of PARASHA_ORDER) {
+                if (rawTitle.includes(p.name)) {
+                    matchedParasha = p.name;
+                    matchedChumash = p.chumash;
+                    break;
+                }
+            }
+
+            // בדיקה מול כינויים וכתיב חסר
+            if (!matchedParasha) {
+                for (const [alias, canonical] of Object.entries(parashaAliases)) {
+                    if (rawTitle.includes(alias)) {
+                        matchedParasha = canonical;
+                        const found = PARASHA_ORDER.find(item => item.name === canonical);
+                        if (found) matchedChumash = found.chumash;
+                        break;
+                    }
+                }
+            }
+
+            if (!matchedParasha) {
+                matchedParasha = rawTitle.replace(/ה?תש[עפצ]["״׳']?[א-ת]/g, '').trim() || 'כללי';
+            }
+
+            return { parasha: matchedParasha, chumash: matchedChumash, year };
+        }
+
+        // שאיבה אוטומטית של כל דברי התורה מהאתר tora.hatul.info דרך WordPress REST API
+        async function syncFromHatulSite() {
+            const btn = document.getElementById('sync-site-btn');
+            const icon = document.getElementById('sync-site-icon');
+            if (btn.disabled) return;
+
+            btn.disabled = true;
+            icon.classList.add('animate-spin');
+            showToast('מתחבר לאתר tora.hatul.info ושואב דברי תורה...');
+
+            const apiBase = 'https://tora.hatul.info/wp-json/wp/v2/posts?per_page=100';
+            let page = 1;
+            let totalPages = 1;
+            let allPosts = [];
+
+            try {
+                while (page <= totalPages && page <= 15) {
+                    const targetUrl = `${apiBase}&page=${page}`;
+                    let response;
+
+                    try {
+                        response = await fetch(targetUrl);
+                    } catch (directErr) {
+                        // גיבוי דרך פרוקסי CORS במקרה שהקובץ נפתח מקומית או מתוך מסגרת סגורה
+                        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+                        response = await fetch(proxyUrl);
+                    }
+
+                    if (!response || !response.ok) {
+                        if (page === 1) throw new Error('לא ניתן לגשת לשרת האתר');
+                        break;
+                    }
+
+                    const headerTotalPages = response.headers.get('X-WP-TotalPages');
+                    if (headerTotalPages) {
+                        totalPages = parseInt(headerTotalPages, 10) || 1;
+                    }
+
+                    const posts = await response.json();
+                    if (!Array.isArray(posts) || posts.length === 0) break;
+
+                    allPosts = allPosts.concat(posts);
+                    if (posts.length < 100) break;
+                    page++;
+                }
+
+                const parser = new DOMParser();
+                const existingKeys = new Set(
+                    lessonsData.map(l => `${l.parasha}-${normalizeHebrewQuotes(l.year)}`)
+                );
+                const existingIds = new Set(lessonsData.map(l => String(l.id)));
+
+                let addedCount = 0;
+
+                allPosts.forEach(post => {
+                    const postId = `hatul-${post.id}`;
+                    if (existingIds.has(postId)) return;
+
+                    const titleDoc = parser.parseFromString(post.title?.rendered || '', 'text/html');
+                    const cleanTitle = (titleDoc.body.textContent || '').trim();
+
+                    const contentDoc = parser.parseFromString(post.content?.rendered || '', 'text/html');
+                    const paragraphs = Array.from(contentDoc.querySelectorAll('p, li'))
+                        .map(el => el.textContent.replace(/\s+/g, ' ').trim())
+                        .filter(txt => txt.length > 2);
+
+                    if (paragraphs.length === 0) return;
+
+                    const meta = parseHatulPostMetadata(cleanTitle, paragraphs);
+                    const dedupKey = `${meta.parasha}-${normalizeHebrewQuotes(meta.year)}`;
+                    if (existingKeys.has(dedupKey)) return;
+
+                    // זיהוי פסוק פותח מתוך השורות הראשונות
+                    const firstVerseCandidate = paragraphs.slice(0, 3).find(p => p.includes('(') && p.includes(')') && p.length < 220) || '';
+                    const bodyParagraphs = paragraphs.filter(p => !p.startsWith('ב"ה ערב שבת') && !p.startsWith('ב״ה ערב שבת'));
+                    const summarySource = bodyParagraphs[0] || paragraphs[0] || '';
+                    const summary = summarySource.slice(0, 175) + (summarySource.length > 175 ? '...' : '');
+
+                    const dateISO = (post.date || '').split('T')[0] || '2021-01-01';
+                    const formattedDate = dateISO.split('-').reverse().join('.');
+
+                    lessonsData.push({
+                        id: postId,
+                        chumash: meta.chumash,
+                        parasha: meta.parasha,
+                        year: meta.year,
+                        dateISO: dateISO,
+                        dateDisplay: `אתר תורה • ${meta.year} (${formattedDate})`,
+                        sender: 'סבא שאול (מאגר tora.hatul.info)',
+                        title: `פרשת ${meta.parasha} (${meta.year}) – מתוך דברי התורה של סבא שאול`,
+                        verse: firstVerseCandidate,
+                        summary: summary,
+                        content: paragraphs
+                    });
+
+                    existingIds.add(postId);
+                    existingKeys.add(dedupKey);
+                    addedCount++;
+                });
+
+                if (addedCount > 0) {
+                    saveAllCustomToStorage();
+                    populateFilters();
+                    renderLessons();
+                    showToast(`הסנכרון הושלם! נוספו ${addedCount} דברי תורה מכל השנים!`);
+                } else {
+                    showToast('המאגר שלך כבר מעודכן בכל דברי התורה שבאתר!');
+                }
+            } catch (error) {
+                console.error('שגיאה בסנכרון מול tora.hatul.info:', error);
+                showToast('החיבור לאתר נחסם בדפדפן זה. מומלץ לשמור את הקובץ ולפתוח ישירות.');
+            } finally {
+                btn.disabled = false;
+                icon.classList.remove('animate-spin');
+            }
+        }
+
+        // הצגת הודעת משוב מעוצבת
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
